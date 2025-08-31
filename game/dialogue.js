@@ -147,13 +147,11 @@ class DialogueBox {
         var context = this.game.context;
 
         context.globalAlpha = this.boxa;
-        context.font = 
-            (typeof this.type.fontSize === "number" ? this.type.fontSize : eval(this.type.fontSize)) + "px " + 
-            (this.type.fontFamily.includes("{") ? eval(this.type.fontFamily) : this.type.fontFamily);
+        context.font = `${this.type.fontSize}px ${this.type.fontFamily}`;
         context.textAlign = "left";
         context.textBaseline = "top";
         
-        let width = typeof this.type.width === "number" ? this.type.width : eval(this.type.width);
+        let width = this.type.width;
 
         let allLines = this.breakLinesToFit(this.text, width);
         let lines = this.breakLinesToFit(this.text.substring(0, this.charIndex), width);
