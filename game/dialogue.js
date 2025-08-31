@@ -163,7 +163,16 @@ class DialogueBox {
         let height = allLines.length * lineHeight * smootherstep(this.boxf);
         let p = this.type.textPadding;
 
-        let { x, y } = new Function('canvas', 'width', 'height', this.type.position)(this.game.canvas, width, height);
+        var x, y;
+        try {
+            let pos = new Function('canvas', 'width', 'height', this.type.position).bind(this)(this.game.canvas, width, height);
+            x = pos.x;
+            y = pos.y;
+        } catch {
+            x = 0;
+            y = 0;
+            console.log("error with position function.");
+        }
 
         context.fillStyle = this.type.backgroundColor;
         context.beginPath();
@@ -189,7 +198,17 @@ class DialogueBox {
             if (this.boxf > 1) this.boxf = 1;
 
             if (!this.awaitingInput && this.boxf >= 1) {
-                let { interval, charIncrement } = new Function(this.type.animation).bind(this)();
+                var interval;
+                var charIncrement;
+                try {
+                    let data = new Function(this.type.animation).bind(this)();
+                    interval = data.interval;
+                    charIncrement = data.charIncrement;
+                } catch {
+                    interval = 0;
+                    charIncrement = 1;
+                    console.log("error with animation function.");
+                }
 
                 this.playf += dt;
                 if (this.playf >= interval) {

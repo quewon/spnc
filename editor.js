@@ -426,7 +426,6 @@ function addSound() {
         alert("no sound file selected.");
         return;
     }
-    console.log(editor.selectedSoundObject);
     let lines = editor.selectedSoundObject.script.split("\n");
     let path = lines[1]?.split(":").splice(1).join(":");
     let url = lines[2]?.split(":").splice(1).join(":");
