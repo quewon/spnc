@@ -75,6 +75,7 @@ class Sprite {
 class AudioSprite {
     loaded = false;
     src;
+    url;
     buffer;
 
     constructor(o) {
@@ -84,6 +85,7 @@ class AudioSprite {
 
     setSource(context, src) {
         this.loaded = false;
+        this.url = src;
         fetch(src)
         .then(res => res.arrayBuffer())
         .then(buffer => context.decodeAudioData(buffer))

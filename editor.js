@@ -213,13 +213,8 @@ async function exportGame() {
         })
     }
     if (objecturl.length > 0) {
-        for (let sprite of objecturl) {
-            if (sprite.buffer) {
-                zip.file(sprite.src, sprite.buffer);
-            } else {
-                zip.file(sprite.src, await fetch(sprite.image.src).then(res => res.blob()));
-            }
-        }
+        for (let sprite of objecturl)
+            zip.file(sprite.src, await fetch(sprite.buffer ? sprite.url : sprite.image.src).then(res => res.blob()));
     }
     
     var html;
