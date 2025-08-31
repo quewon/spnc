@@ -160,6 +160,16 @@
         body.game canvas {
             cursor: none;
         }
+
+        dialog {
+            color: white;
+            border: none;
+            background: transparent;
+            outline: none;
+        }
+        dialog::backdrop {
+            background: rgba(0, 0, 0, .9);
+        }
     </style>
 </head>
 <body>
@@ -238,6 +248,12 @@
             <input type="checkbox" data-var="disablePrompts" checked /> disable confirmation prompts
         </div>
     </aside>
+
+    <dialog id="_nofileapi">
+        your browser doesn't support the File System API. this tool won't work without it.<br>
+        <br>
+        <button type="button" onclick="this.parentElement.close()">access anyway</button>
+    </dialog>
     
 </body>
 
@@ -330,5 +346,9 @@
 
     updateScenes();
     updateSounds();
+
+    if (!window.showDirectoryPicker) {
+        _nofileapi.showModal();
+    }
 </script>
 </html>
