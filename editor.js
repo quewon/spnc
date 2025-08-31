@@ -57,7 +57,10 @@ async function loadAssetFolder(directory) {
     }
 
     if (!directory)
-        directory = await window.showDirectoryPicker().catch(() => { loadAssetFolder(editor.savedAssetDirectory) });
+        directory = await window.showDirectoryPicker().catch(() => {
+            if (editor.savedAssetDirectory)
+                loadAssetFolder(editor.savedAssetDirectory) 
+        });
     if (!directory)
         return;
     editor.savedAssetDirectory = directory;
