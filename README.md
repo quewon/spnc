@@ -1,6 +1,6 @@
 # q1's simple point n clicker
 
-this is a tool for making mechanically simple point n click games. my intention is that you'd collect a bunch of assets (sounds, images), dump them into a folder, and load that folder in to collage together into a little game.
+this is a tool for making mechanically simple point n click games. my intention is that you'd collect a bunch of assets (sounds, images), dump them into a folder, and load that folder in to collage together a little game.
 
 a basic scripting system allows for playing sounds, moving between scenes, and playing text:
 
