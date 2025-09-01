@@ -1,3 +1,6 @@
+const fakeCanvas = document.createElement("canvas");
+const fakeContext = fakeCanvas.getContext("2d", { willReadFrequently: true });
+
 class Sprite {
     loaded = false;
     src;
@@ -17,11 +20,24 @@ class Sprite {
             this.height = o.height;
         if (o.scale)
             this.scale = o.scale;
-        this.image.onload = () => {
-            this.loaded = true;
+        this.image.onload = async () => {
             this.width = this.image.naturalWidth;
             this.height = this.image.naturalHeight;
-            this.imagedata = o.imagedata || this.generateImagedata(this.image);
+            if (o.onload)
+                o.onload();
+            if (o.imagedata) {
+                this.imagedata = o.imagedata;
+                this.loaded = true;
+            }
+            while (ENV !== "editor" || editor?.grabbedObject || editor?.scrollOffset || editor?.generatingImages) {
+                await new Promise(resolve => {
+                    setTimeout(() => { resolve() }, 100);
+                })
+            }
+            if (!o.imagedata) {
+                this.imagedata = this.generateImagedata(this.image);
+                this.loaded = true;
+            }
         }
     }
 
@@ -44,8 +60,8 @@ class Sprite {
     }
 
     generateImagedata(image) {
-        let canvas = document.createElement("canvas");
-        let context = canvas.getContext("2d");
+        let canvas = fakeCanvas;
+        let context = fakeContext;
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -84,20 +100,24 @@ class AudioSprite {
             this.buffer = o.buffer;
             this.loaded = true;
             this.url = o.objectURL || this.src;
+            if (o.onload)
+                o.onload();
         } else {
-            this.setSource(o.context, o.objectURL || this.src);
+            this.setSource(o.context, o.objectURL || this.src, o.onload);
         }
     }
 
-    setSource(context, src) {
+    setSource(context, src, onload) {
         this.loaded = false;
         this.url = src;
         fetch(src)
         .then(res => res.arrayBuffer())
         .then(buffer => context.decodeAudioData(buffer))
         .then(buffer => {
-            this.loaded = true;
             this.buffer = buffer;
+            this.loaded = true;
+            if (onload)
+                onload();
         })
     }
 

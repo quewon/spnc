@@ -1,6 +1,7 @@
 var ENV = "editor";
 
 var editor = {
+    generatingImages: false,
     savedAssetDirectory: null,
     supportedImageFormats: ["jpg", "jpeg", "png", "gif"],
     supportedAudioFormats: ["mp3", "wav", "ogg"],
@@ -13,12 +14,7 @@ var editor = {
     gameWidth: 800,
     gameHeight: 600
 }
-
-var game = new Game({
-    canvas: canvas,
-    width: editor.gameWidth,
-    height: editor.gameHeight
-});
+var game;
 
 // asset folder
 
@@ -64,55 +60,82 @@ async function loadAssetFolder(directory) {
     if (!directory)
         return;
     editor.savedAssetDirectory = directory;
-    const folderElement = await createFolderElement(directory);
-    filesystem.appendChild(folderElement);
-    folderElement.querySelector("details").open = true;
-    game.windowresize();
+    editor.generatingFiles = true;
+    createFolderElement(_filesystem, directory)
+    .then(el => {
+        el.querySelector("details").open = true;
+        game.windowresize();
+    })
 }
 
-async function createFolderElement(directory, parent) {
+async function createFolderElement(parentElement, directory, parent) {
     const el = document.createElement("li");
     el.className = "folder";
+    parentElement.appendChild(el);
 
     const details = document.createElement("details");
     const summary = document.createElement("summary");
     summary.textContent = directory.name;
+    setLabel(summary, "folder");
     details.appendChild(summary);
     el.appendChild(details);
 
     const list = document.createElement("ul");
-    if (!parent) {
+    details.appendChild(list);
+    if (!parent)
         parent = directory.name + "/";
-    } else {
+    else
         parent += directory.name + "/";
-    }
-    for await (const entry of directory.values()) {
-        let ext;
-        if (entry.name.split(".").length > 1)
-            ext = entry.name.split(".").pop().toLowerCase();
-        if (entry.kind === "directory" && !ext) {
-            list.appendChild(await createFolderElement(entry, parent));
-        } else if (editor.supportedImageFormats.includes(ext)) {
-            list.appendChild(await createImageFileElement(entry, parent));
-        } else if (editor.supportedAudioFormats.includes(ext)) {
-            list.appendChild(await createAudioFileElement(entry, parent));
+
+    if (window.Worker) {
+        const worker = new Worker("workers/directory.js");
+        worker.onmessage = e => {
+            for (const data of e.data) {
+                if (data.kind === "directory") {
+                    createFolderElement(list, data.entry, parent);
+                } else if (data.kind === "image") {
+                    createImageFileElement(list, data, parent);
+                } else if (data.kind === "audio") {
+                    createAudioFileElement(list, data, parent);
+                }
+            }
+        };
+        worker.postMessage({
+            directory: directory,
+            supportedImageFormats: editor.supportedImageFormats,
+            supportedAudioFormats: editor.supportedAudioFormats
+        });
+    } else {
+        for await (const entry of directory.values()) {
+            let ext;
+            if (entry.name.split(".").length > 1)
+                ext = entry.name.split(".").pop().toLowerCase();
+            if (entry.kind === "directory" && !ext) {
+                createFolderElement(list, entry, parent);
+            } else if (editor.supportedImageFormats.includes(ext)) {
+                createImageFileElement(list, {entry}, parent);
+            } else if (editor.supportedAudioFormats.includes(ext)) {
+                createAudioFileElement(list, {entry}, parent);
+            }
         }
     }
-    details.appendChild(list);
-    setLabel(summary, "folder");
+
     return el;
 }
 
-async function createAudioFileElement(fileHandle, parent) {
+async function createAudioFileElement(parentElement, data, parent) {
     const el = document.createElement("li");
     el.className = "file";
-    el.textContent = fileHandle.name;
+    el.textContent = data.entry.name;
+    parentElement.appendChild(el);
 
-    const filepath = (parent || "") + fileHandle.name;
-    const file = await fileHandle.getFile();
-    const url = URL.createObjectURL(file);
-    const sprite = new Sprite({ src: "_res/music.png" });
-    el.classList.add("loaded");
+    const filepath = (parent || "") + data.entry.name;
+    const file = data.file || await data.entry.getFile();
+    const url = data.url || URL.createObjectURL(file);
+    const sprite = new Sprite({
+        src: "_res/music.png",
+        onload: function() { this.classList.add("loaded") }.bind(el)
+    });
     el.addEventListener("mousedown", () => {
         if (el.classList.contains("loaded")) {
             document.body.classList.add("dragging");
@@ -143,19 +166,26 @@ async function createAudioFileElement(fileHandle, parent) {
     return el;
 }
 
-async function createImageFileElement(fileHandle, parent) {
+async function createImageFileElement(parentElement, data, parent) {
     const el = document.createElement("li");
     el.className = "file";
-    el.textContent = fileHandle.name;
+    el.textContent = data.entry.name;
+    parentElement.appendChild(el);
 
-    const filepath = (parent || "") + fileHandle.name;
-    const file = await fileHandle.getFile();
-    const url = URL.createObjectURL(file);
+    const filepath = (parent || "") + data.entry.name;
+    const file = data.file || await data.entry.getFile();
+    const url = data.url || URL.createObjectURL(file);
+
+    editor.generatingImages = true;
     const sprite = new Sprite({
-        src: fileHandle.name,
-        objectURL: URL.createObjectURL(file)
+        src: data.entry.name,
+        objectURL: url,
+        onload: function() {
+            this.classList.add("loaded");
+            if (!document.querySelector(".file:not(.loaded)"))
+                editor.generatingImages = false;
+        }.bind(el)
     });
-    el.classList.add("loaded");
     el.addEventListener("mousedown", () => {
         if (el.classList.contains("loaded")) {
             document.body.classList.add("dragging");
@@ -272,68 +302,6 @@ function saveGame() {
 
 // object handling
 
-game.canvas.addEventListener("wheel", e => {
-    var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;
-    if (object) {
-        let os = object.sprite.scale;
-        object.sprite.scale += e.deltaY / 300;
-        if (object.sprite.scale < .1) object.sprite.scale = .1;
-        let offset;
-        if (object === editor.grabbedObject) {
-            editor.grabOffset = [
-                editor.grabOffset[0] * (object.sprite.scale / os),
-                editor.grabOffset[1] * (object.sprite.scale / os)
-            ];
-            offset = editor.grabOffset;
-        } else {
-            if (!editor.scrollOffset) {
-                editor.scrollOffset = [
-                    object.position[0] - game.mouse.position[0],
-                    object.position[1] - game.mouse.position[1]
-                ]
-            }
-            editor.scrollOffset = [
-                editor.scrollOffset[0] * (object.sprite.scale / os),
-                editor.scrollOffset[1] * (object.sprite.scale / os)
-            ];
-            offset = editor.scrollOffset;
-        }
-        object.position = [
-            game.mouse.position[0] + offset[0],
-            game.mouse.position[1] + offset[1]
-        ]
-    }
-    e.preventDefault();
-})
-
-document.addEventListener("contextmenu", e => {
-    e.preventDefault();
-    if (game.scenes[game.currentScene].hoveredObject) {
-        let object = game.scenes[game.currentScene].hoveredObject;
-        let scene = game.scenes[game.currentScene];
-        scene.removeObject(object);
-        scene.objects.unshift(object);
-        object.scene = scene;
-    }
-})
-
-document.body.addEventListener("mousemove", () => {
-    if (editor.grabbedObject) {
-        editor.grabbedObject.position = [
-            game.mouse.position[0] + editor.grabOffset[0],
-            game.mouse.position[1] + editor.grabOffset[1]
-        ]
-        if (
-            game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
-            game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
-        ) {
-            document.body.classList.add("delete-object");
-        } else {
-            document.body.classList.remove("delete-object");
-        }
-    }
-})
-
 function containsElement(container, element) {
     if (!element.parentElement)
         return false;
@@ -341,40 +309,6 @@ function containsElement(container, element) {
         return true;
     return (containsElement(container, element.parentElement));
 }
-
-document.addEventListener("mousedown", e => {
-    if (e.target !== game.canvas && e.target !== _objectmenu && !containsElement(_objectmenu, e.target)) {
-        deselectObject();
-    }
-})
-
-document.addEventListener("mouseup", () => {
-    if (editor.grabbedObject) {
-        if (
-            game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
-            game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
-        ) {
-            if (editor.disablePrompts) {
-                editor.grabbedObject.scene.removeObject(editor.grabbedObject);
-            } else {
-                if (!confirm("delete this object?")) {
-                    editor.grabbedObject.position = [
-                        game.canvas.width/2 - editor.grabbedObject.width/2,
-                        game.canvas.height/2 - editor.grabbedObject.height/2
-                    ]
-                } else {
-                    editor.grabbedObject.scene.removeObject(editor.grabbedObject);
-                }
-            }
-            if (editor.grabbedObject === editor.selectedObject) {
-                deselectObject();
-            }
-        }
-        document.body.classList.remove("dragging");
-        document.body.classList.remove("delete-object");
-        editor.grabbedObject = null;
-    }
-})
 
 function grabObject(object) {
     document.body.classList.add("dragging");
@@ -725,3 +659,112 @@ function resizeTextarea() {
     this.style.height = "";
     this.style.height = this.scrollHeight + 5 + "px";
 }
+
+// events
+
+window.addEventListener("load", () => {
+    game = new Game({
+        canvas,
+        width: editor.gameWidth,
+        height: editor.gameHeight
+    });
+
+    game.canvas.addEventListener("wheel", e => {
+        var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;
+        if (object) {
+            let os = object.sprite.scale;
+            object.sprite.scale += e.deltaY / (Math.max(object.sprite.width, object.sprite.height) * 2);
+            if (object.sprite.width * object.sprite.scale < 20)
+                object.sprite.scale = 20/object.sprite.width;
+            if (object.sprite.height * object.sprite.scale < 20)
+                object.sprite.scale = 20/object.sprite.height;
+            let offset;
+            if (object === editor.grabbedObject) {
+                editor.grabOffset = [
+                    editor.grabOffset[0] * (object.sprite.scale / os),
+                    editor.grabOffset[1] * (object.sprite.scale / os)
+                ];
+                offset = editor.grabOffset;
+            } else {
+                if (!editor.scrollOffset) {
+                    editor.scrollOffset = [
+                        object.position[0] - game.mouse.position[0],
+                        object.position[1] - game.mouse.position[1]
+                    ]
+                }
+                editor.scrollOffset = [
+                    editor.scrollOffset[0] * (object.sprite.scale / os),
+                    editor.scrollOffset[1] * (object.sprite.scale / os)
+                ];
+                offset = editor.scrollOffset;
+            }
+            object.position = [
+                game.mouse.position[0] + offset[0],
+                game.mouse.position[1] + offset[1]
+            ]
+        }
+        e.preventDefault();
+    })
+
+    document.addEventListener("contextmenu", e => {
+        e.preventDefault();
+        if (game.scenes[game.currentScene].hoveredObject) {
+            let object = game.scenes[game.currentScene].hoveredObject;
+            let scene = game.scenes[game.currentScene];
+            scene.removeObject(object);
+            scene.objects.unshift(object);
+            object.scene = scene;
+        }
+    })
+
+    document.body.addEventListener("mousemove", () => {
+        if (editor.grabbedObject) {
+            editor.grabbedObject.position = [
+                game.mouse.position[0] + editor.grabOffset[0],
+                game.mouse.position[1] + editor.grabOffset[1]
+            ]
+            if (
+                game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
+                game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
+            ) {
+                document.body.classList.add("delete-object");
+            } else {
+                document.body.classList.remove("delete-object");
+            }
+        }
+    })
+
+    document.addEventListener("mousedown", e => {
+        if (e.target !== game.canvas && e.target !== _objectmenu && !containsElement(_objectmenu, e.target)) {
+            deselectObject();
+        }
+    })
+
+    document.addEventListener("mouseup", () => {
+        if (editor.grabbedObject) {
+            if (
+                game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
+                game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
+            ) {
+                if (editor.disablePrompts) {
+                    editor.grabbedObject.scene.removeObject(editor.grabbedObject);
+                } else {
+                    if (!confirm("delete this object?")) {
+                        editor.grabbedObject.position = [
+                            game.canvas.width/2 - editor.grabbedObject.width/2,
+                            game.canvas.height/2 - editor.grabbedObject.height/2
+                        ]
+                    } else {
+                        editor.grabbedObject.scene.removeObject(editor.grabbedObject);
+                    }
+                }
+                if (editor.grabbedObject === editor.selectedObject) {
+                    deselectObject();
+                }
+            }
+            document.body.classList.remove("dragging");
+            document.body.classList.remove("delete-object");
+            editor.grabbedObject = null;
+        }
+    })
+})

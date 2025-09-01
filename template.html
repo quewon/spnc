@@ -6,23 +6,27 @@
     <title>GAME_TITLE_</title>
     <style>
         body {
-            background: black;
-            cursor: none;
+            background: #000;
+            cursor: none
         }
         canvas {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%)
         }
     </style>
+    <script defer>GAME_UTIL_JS_</script>
+    <script defer>GAME_SPRITE_JS_</script>
+    <script defer>GAME_DIALOGUE_JS_</script>
+    <script defer>GAME_GAME_JS_</script>
+    <script defer>GAME_UTIL_JS_</script>
 </head>
 <body>
     <canvas></canvas>
 </body>
-<script>GAME_UTIL_JS_</script>
-<script>GAME_SPRITE_JS_</script>
-<script>GAME_DIALOGUE_JS_</script>
-<script>GAME_GAME_JS_</script>
-<script>var ENV = "game"; var editor; new Game(GAME_DATA_)</script>
+<script>
+    var editor, ENV = "game";
+    new Game(GAME_DATA_)
+</script>
 </html>

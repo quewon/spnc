@@ -99,10 +99,14 @@
             user-select: none;
             list-style-type: "";
         }
-        summary:hover, .file:hover {
+        summary:hover, .file.loaded:hover {
             background: rgba(255, 255, 255, .2);
         }
         .file {
+            color: gray;
+        }
+        .file.loaded {
+            color: white;
             cursor: grab;
         }
         
@@ -172,6 +176,12 @@
             background: rgba(0, 0, 0, .9);
         }
     </style>
+    <script src="FileSaver.min.js" defer></script>
+    <script src="jszip.min.js" defer></script>
+    <script src="game/util.js" defer></script>
+    <script src="game/sprite.js" defer></script>
+    <script src="game/dialogue.js" defer></script>
+    <script src="game/game.js" defer></script>
 </head>
 <body>
 
@@ -183,7 +193,7 @@
             <button type="button" class="expand" onclick="exportGame()">export game</button>
         </div>
         <button type="button" onclick="loadAssetFolder()" title="(re)load asset folder">(re)load an asset folder</button>
-        <ul id="filesystem"></ul>
+        <ul id="_filesystem"></ul>
     </aside>
     <main>
         <header>
@@ -287,32 +297,28 @@
     
 </body>
 
-<script src="FileSaver.min.js"></script>
-<script src="jszip.min.js"></script>
-<script src="game/util.js"></script>
-<script src="game/sprite.js"></script>
-<script src="game/dialogue.js"></script>
-<script src="game/game.js"></script>
 <script src="editor.js"></script>
 <script>
-    for (let el of document.querySelectorAll("*[title]"))
-        setLabel(el, el.title);
+    window.addEventListener("load", () => {
+        for (let el of document.querySelectorAll("*[title]"))
+            setLabel(el, el.title);
 
-    document.addEventListener("keydown", e => {
-        if (e.key === "Tab") {
-            switchMode();
-            _modebutton.focus();
-            e.preventDefault();
-        }
+        document.addEventListener("keydown", e => {
+            if (e.key === "Tab") {
+                switchMode();
+                _modebutton.focus();
+                e.preventDefault();
+            }
+        })
+
+        document.querySelector("textarea").addEventListener("focus", resizeTextarea);
+        document.querySelector("textarea").addEventListener("input", resizeTextarea);
+
+        updateScenes();
+        updateSounds();
+
+        if (!window.showDirectoryPicker)
+            _nofileapi.showModal();
     })
-
-    document.querySelector("textarea").addEventListener("focus", resizeTextarea);
-    document.querySelector("textarea").addEventListener("input", resizeTextarea);
-
-    updateScenes();
-    updateSounds();
-
-    if (!window.showDirectoryPicker)
-        _nofileapi.showModal();
 </script>
 </html>
