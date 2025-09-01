@@ -15,7 +15,6 @@ class Game {
     cursorDefault = new Sprite({ src: "_res/cursor_open.png" });
     cursorDown = new Sprite({ src: "_res/cursor_closed.png" });
 
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
     sounds = {
         "interact": "_res/interact.mp3",
         "dialogue": "_res/default_dialogue.mp3"
@@ -119,7 +118,6 @@ return {
         }
         for (let sound in this.sounds) {
             this.sounds[sound] = new AudioSprite({
-                context: this.audioContext,
                 src: this.sounds[sound]
             });
         }
@@ -130,18 +128,36 @@ return {
 
         // event listeners
 
-        this.canvas.addEventListener("mousedown", this.mousedown.bind(this));
-        document.addEventListener("mouseup", this.mouseup.bind(this));
-        document.addEventListener("mousemove", this.mousemove.bind(this));
-        this.canvas.addEventListener("click", this.mouseclick.bind(this));
-        window.addEventListener("blur", this.mouseup.bind(this));
-        window.addEventListener("resize", this.windowresize.bind(this));
+        this.mousedownEventListener = this.mousedown.bind(this);
+        this.mouseupEventListener = this.mouseup.bind(this);
+        this.mousemoveEventListener = this.mousemove.bind(this);
+        this.mouseclickEventListener = this.mouseclick.bind(this);
+        this.resizeEventListener = this.windowresize.bind(this);
+
+        this.canvas.addEventListener("mousedown", this.mousedownEventListener);
+        document.addEventListener("mouseup", this.mouseupEventListener);
+        window.addEventListener("blur", this.mouseupEventListener);
+        document.addEventListener("mousemove", this.mousemoveEventListener);
+        this.canvas.addEventListener("click", this.mouseclickEventListener);
+        window.addEventListener("resize", this.resizeEventListener);
 
         // 
 
         this.previousTime = new Date();
         this.update();
         this.draw();
+    }
+
+    destroy() {
+        this.destroyed = true;
+        this.canvas.removeEventListener("mousedown", this.mousedownEventListener);
+        document.removeEventListener("mouseup", this.mouseupEventListener);
+        window.removeEventListener("blur", this.mouseupEventListener);
+        document.removeEventListener("mousemove", this.mousemoveEventListener);
+        this.canvas.removeEventListener("click", this.mouseclickEventListener);
+        window.removeEventListener("resize", this.resizeEventListener);
+        outputAudio.pause();
+        outputAudio.dataset.started = false;
     }
 
     mousedown(e) {
@@ -228,6 +244,9 @@ return {
     }
 
     draw() {
+        if (this.destroyed)
+            return;
+
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (ENV === "editor") {
             this.context.fillStyle = "magenta";
@@ -251,6 +270,9 @@ return {
     }
 
     update() {
+        if (this.destroyed)
+            return;
+
         var now = new Date();
         var delta = now - this.previousTime;
         
@@ -274,7 +296,7 @@ return {
         if (!this.sounds[sound])
             return;
         if (this.sounds[sound])
-            this.sounds[sound].play(this.audioContext);
+            this.sounds[sound].play();
     }
 
     stopSound(sound) {
@@ -463,7 +485,7 @@ class GameObject {
     click() {
         if (this.dialogue.lines.length > 0) {
             this.scene.game.dialogue = this.dialogue;
-            this.scene.game.hoveredObject = null;
+            this.scene.hoveredObject = null;
             this.dialogue.play();
         }
     }

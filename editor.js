@@ -36,7 +36,7 @@ function allSprites() {
     return sprites;
 }
 
-function loadAssetFolder(files) {
+function clearAssetFolder() {
     if (document.querySelector(".folder"))
         document.querySelector(".folder").remove();
     for (let sprite of allSprites()) {
@@ -44,6 +44,10 @@ function loadAssetFolder(files) {
             sprite.loaded = false;
         }
     }
+}
+
+function loadAssetFolder(files) {
+    clearAssetFolder();
     var structure = getFolderStructure(files);
     createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
     game.windowresize();
@@ -150,7 +154,7 @@ function createAudioFileElement(parentElement, filename, parent) {
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
-            sprite.setSource(game.audioContext, url);
+            sprite.setSource(url);
         }
     }
 
@@ -274,9 +278,13 @@ function loadGame(file) {
     const reader = new FileReader();
     reader.addEventListener("load", async () => {
         const data = JSON.parse(reader.result);
+        for (let sprite of allSprites()) {
+            if (sprite.buffer)
+                sprite.stop();
+        }
+        game.destroy();
         game = new Game(data);
-        _folderpickerbutton.focus();
-        _folderpicker.click();
+        clearAssetFolder();
         updateScenes();
         updateSounds();
     })
@@ -413,7 +421,6 @@ function addSound() {
         return;
     }
     game.sounds[sound] = new AudioSprite({
-        context: game.audioContext,
         src: path,
         objectURL: url
     });

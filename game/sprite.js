@@ -3,6 +3,11 @@ const fakeContext = fakeCanvas.getContext("2d", { willReadFrequently: true });
 fakeCanvas.width = 1;
 fakeCanvas.height = 1;
 
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioDestination = audioContext.createMediaStreamDestination();
+const outputAudio = new Audio();
+outputAudio.srcObject = audioDestination.stream;
+
 class Sprite {
     loaded = false;
     src;
@@ -84,31 +89,52 @@ class AudioSprite {
             if (o.onload)
                 o.onload();
         } else {
-            this.setSource(o.context, o.objectURL || this.src, o.onload);
+            this.setSource(o.objectURL || this.src, o.onload);
         }
     }
 
-    setSource(context, src, onload) {
+    setSource(src, onload) {
         this.loaded = false;
         this.url = src;
         fetch(src)
         .then(res => res.arrayBuffer())
-        .then(buffer => context.decodeAudioData(buffer))
+        .then(buffer => audioContext.decodeAudioData(buffer))
         .then(buffer => {
-            this.buffer = buffer;
+            this.buffer = this.addSilence(buffer);
             this.loaded = true;
             if (onload)
                 onload();
         })
     }
 
-    play(context) {
+    addSilence(buffer, silenceDuration = 0.1) {
+        const silenceLength = Math.floor(buffer.sampleRate * silenceDuration);
+        const totalLength = buffer.length + silenceLength;
+        const newBuffer = audioContext.createBuffer(
+            buffer.numberOfChannels,
+            totalLength,
+            buffer.sampleRate
+        );
+        for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+            const originalData = buffer.getChannelData(channel);
+            const newData = newBuffer.getChannelData(channel);
+            newData.set(originalData, 0);
+        }
+        return newBuffer;
+    }
+
+    play() {
         if (!this.loaded)
             return;
+        if (outputAudio.dataset.started !== "true") {
+            outputAudio.play();
+            outputAudio.dataset.started = true;
+            console.log("playing");
+        }
         this.stop();
-        this.source = context.createBufferSource();
+        this.source = audioContext.createBufferSource();
         this.source.buffer = this.buffer;
-        this.source.connect(context.destination);
+        this.source.connect(audioDestination);
         this.source.start();
     }
 
