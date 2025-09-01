@@ -185,8 +185,12 @@ return {
     }
 
     setSize(width, height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
+        this.canvas.width = width ?? this.canvas.width;
+        this.canvas.height = height ?? this.canvas.height;
+        if (editor) {
+            _gamewidth.value = this.canvas.width;
+            _gameheight.value = this.canvas.height;
+        }
         this.windowresize();
     }
 

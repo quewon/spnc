@@ -199,9 +199,9 @@
         <footer>
             <div class="flex expand">
                 <div>
-                    <input type="number" data-var="gameWidth" title="game width">
+                    <input min="1" max="3000" type="number" id="_gamewidth" onchange="game.setSize(parseInt(this.value))" title="game width">
                     x
-                    <input type="number" data-var="gameHeight" title="game height">
+                    <input min="1" max="3000" type="number" id="_gameheight" onchange="game.setSize(null, parseInt(this.value))" title="game height">
                 </div>
                 <div class="expand"></div>
                 <div id="_hoveralt"></div>
@@ -249,7 +249,7 @@
         <br>
         <div class="expand"></div>
         <div style="text-align: right">
-            <input type="checkbox" data-var="disablePrompts" checked /> disable confirmation prompts
+            <input type="checkbox" onchange="editor.disablePrompts=this.checked" checked /> disable confirmation prompts
         </div>
     </aside>
 
@@ -295,28 +295,8 @@
 <script src="game/game.js"></script>
 <script src="editor.js"></script>
 <script>
-    for (let el of document.querySelectorAll("*[title]")) {
+    for (let el of document.querySelectorAll("*[title]"))
         setLabel(el, el.title);
-    }
-
-    for (let el of document.querySelectorAll("*[data-var]")) {
-        el.value = editor[el.dataset.var];
-        if (typeof editor[el.dataset.var] === "boolean") {
-            el.checked = editor[el.dataset.var];
-        }
-        el.addEventListener("change", function() {
-            if (this.type === "number") {
-                editor[this.dataset.var] = parseFloat(this.value);
-                if (this.dataset.var === "gameWidth" || this.dataset.var === "gameHeight") {
-                    game.setSize(editor.gameWidth, editor.gameHeight);
-                }
-            } else if (this.type === "checkbox") {
-                editor[this.dataset.var] = el.checked;
-            } else {
-                editor[this.dataset.var] = this.value;
-            }
-        });
-    }
 
     document.addEventListener("contextmenu", e => {
         e.preventDefault();
