@@ -416,6 +416,8 @@ function addDialogueType(type) {
 }
 
 function selectSound() {
+    if (!editor.grabbedObject)
+        return;
     editor.selectedSoundObject = editor.grabbedObject;
     _sfxdropzone.style.backgroundImage = `url(${editor.selectedSoundObject.sprite.image.src})`;
     _sfxdropzone.title = editor.grabbedObject.sprite.src;
@@ -644,16 +646,15 @@ function updateDialogueTypes() {
             input.dataset.property = property;
             input.addEventListener("change", function() {
                 if (this.type === "number")
-                    game.dialogueTypes[this.dataset.id][this.dataset.property] = parseFloat(this.value);
+                    game.dialogueTypes[this.dataset.id][this.dataset.property] = parseFloat(this.value || 0);
                 else
                     game.dialogueTypes[this.dataset.id][this.dataset.property] = this.value.trim() === "" ? null : this.value.trim();
+                this.value = game.dialogueTypes[this.dataset.id][this.dataset.property];
                 if (this.dataset.id === "default") {
                     for (let nondefault of document.querySelectorAll("[data-property]")) {
                         if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property) {
                             if (nondefault.placeholder)
                                 nondefault.placeholder = game.dialogueTypes.default[this.dataset.property];
-                            if (!game.dialogueTypes[nondefault.dataset.id][this.dataset.property])
-                                nondefault.value = this.value;
                         }
                     }
                 } else {
