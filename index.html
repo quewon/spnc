@@ -30,11 +30,11 @@
         }
         header, footer {
             display: flex;
+            flex-direction: column;
         }
         header {
             padding-bottom: 5px;
             padding-top: 5px;
-            flex-direction: column;
             justify-content: space-between;
         }
         aside {
@@ -166,6 +166,7 @@
             border: none;
             background: transparent;
             outline: none;
+            max-width: 50em;
         }
         dialog::backdrop {
             background: rgba(0, 0, 0, .9);
@@ -187,19 +188,24 @@
     <main>
         <header>
             <center style="color: gray">q1's simple point n clicker v0</center style="color: gray">
-            <div>
+            <div class="flex">
                 <button type="button" id="_modebutton" onclick="switchMode()" title="change mode [tab]">EDITOR MODE</button>
+                <div class="expand"></div>
+                <select id="_sceneselect" value="main" title="current scene / scene select" onchange="game.setScene(this.value)"></select>
+                <button type="button" onclick="_help.showModal()" title="help">?</button>
             </div>
         </header>
         <canvas id="canvas" width="800" height="600"></canvas>
         <footer>
-            <div>
-                <input type="number" data-var="gameWidth" title="game width">
-                x
-                <input type="number" data-var="gameHeight" title="game height">
+            <div class="flex expand">
+                <div>
+                    <input type="number" data-var="gameWidth" title="game width">
+                    x
+                    <input type="number" data-var="gameHeight" title="game height">
+                </div>
+                <div class="expand"></div>
+                <div id="_hoveralt"></div>
             </div>
-            <div class="expand"></div>
-            <div id="_hoveralt"></div>
         </footer>
     </main>
     <aside id="_objectmenu" class="hidden">
@@ -210,9 +216,6 @@
     <aside id="_gamemenu">
         :: SCENE
         <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
-        <select id="_sceneselect" value="main" title="current scene / scene select" onchange="game.setScene(this.value)">
-            <option value="main">main</option>
-        </select>
         <div class="flex">
             <input id="_scenename" type="text" title="new scene name" class="expand" placeholder="id" onkeyup="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
@@ -244,7 +247,8 @@
             </div>
         </div>
         <br>
-        <div>
+        <div class="expand"></div>
+        <div style="text-align: right">
             <input type="checkbox" data-var="disablePrompts" checked /> disable confirmation prompts
         </div>
     </aside>
@@ -253,6 +257,32 @@
         your browser doesn't support the File System API. this tool won't work without it.<br>
         <br>
         <button type="button" onclick="this.parentElement.close()">access anyway</button>
+    </dialog>
+
+    <dialog id="_help">
+        <p>
+            this is a tool for making mechanically simple point n click games. my intention is that you'd collect a bunch of assets (sounds, images), dump them into a folder, and load that folder in to collage together a little game.
+        </p>
+        <p>
+            a basic scripting system allows for playing sounds, moving between scenes, and playing text:
+            <ul>
+                <li><em>PLAY:</em> to play a sound</li>
+                <li><em>STOP:</em> to stop a sound</li>
+                <li><em>GOTO:</em> to go to a different scene</li>
+                <li><em>[TYPE]:</em> to display text using a specific dialogue type</li>
+            </ul>
+        </p>
+        <p>
+            misc shortcuts:
+            <ul>
+                <li>TAB to switch between EDITOR MODE and GAME MODE</li>
+                <li><em>//</em> to comment in scripts</li>
+                <li>SCROLL to scale objects</li>
+                <li>RIGHT CLICK to send an object to the back</li>
+            </ul>
+        </p>
+        <br>
+        <button type="button" onclick="this.parentElement.close()">close</button>
     </dialog>
     
 </body>
