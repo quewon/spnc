@@ -124,7 +124,7 @@
             background-repeat: no-repeat;
             background-position: center;
         }
-        body.dragging .dropzone:hover {
+        .dropzone.active {
             border-style: solid;
             border-color: greenyellow;
             color: white;
@@ -316,6 +316,16 @@
     window.addEventListener("load", () => {
         for (let el of document.querySelectorAll("*[title]"))
             setLabel(el, el.title);
+
+        for (let dropzone of document.querySelectorAll(".dropzone")) {
+            dropzone.addEventListener("mouseenter", function() {
+                if (editor.grabbedObject)
+                    this.classList.add("active");
+            })
+            dropzone.addEventListener("mouseleave", function() {
+                this.classList.remove("active");
+            })
+        }
 
         document.addEventListener("keydown", e => {
             if (e.key === "Tab") {
