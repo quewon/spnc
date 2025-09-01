@@ -99,6 +99,9 @@
             user-select: none;
             list-style-type: "";
         }
+        summary {
+            cursor: pointer;
+        }
         summary:hover, .file.loaded:hover {
             background: rgba(255, 255, 255, .2);
         }
@@ -174,6 +177,10 @@
         }
         dialog::backdrop {
             background: rgba(0, 0, 0, .9);
+        }
+        * {
+            user-select: none;
+            -webkit-user-select: none;
         }
     </style>
     <script type="text/javascript" src="_lib/typeset/src/linked-list.js"></script>
