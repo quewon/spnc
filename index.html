@@ -197,7 +197,8 @@
             <button type="button" class="expand" onclick="saveGame()">save</button>
             <button type="button" class="expand" onclick="exportGame()">export game</button>
         </div>
-        <button type="button" onclick="loadAssetFolder()" title="(re)load asset folder">(re)load an asset folder</button>
+        <button type="button" onclick="this.nextElementSibling.click()" title="(re)load asset folder">(re)load an asset folder</button>
+            <input id="_folderpicker" type="file" webkitdirectory multiple onchange="loadAssetFolder(this.files)" class="hidden">
         <ul id="_filesystem"></ul>
     </aside>
     <main>
@@ -268,12 +269,6 @@
         </div>
     </aside>
 
-    <dialog id="_nofileapi">
-        your browser doesn't support the File System API. this tool won't work without it.<br>
-        <br>
-        <button type="button" onclick="this.parentElement.close()">access anyway</button>
-    </dialog>
-
     <dialog id="_help">
         <p>
             this is a tool for making mechanically simple point n click games. my intention is that you'd collect a bunch of assets (sounds, images), dump them into a folder, and load that folder in to collage together a little game.
@@ -288,12 +283,18 @@
             </ul>
         </p>
         <p>
-            misc shortcuts:
+            misc features:
             <ul>
                 <li>TAB to switch between EDITOR MODE and GAME MODE</li>
                 <li><em>//</em> to comment in scripts</li>
                 <li>SCROLL to scale objects</li>
                 <li>RIGHT CLICK to send an object to the back</li>
+            </ul>
+        </p>
+        <p>
+            a promise:
+            <ul>
+                <li>this tool has no way of collecting your data.</li>
             </ul>
         </p>
         <br>
@@ -321,9 +322,6 @@
 
         updateScenes();
         updateSounds();
-
-        if (!window.showDirectoryPicker)
-            _nofileapi.showModal();
     })
 </script>
 </html>

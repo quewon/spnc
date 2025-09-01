@@ -1,7 +1,7 @@
 var ENV = "editor";
 
 var editor = {
-    savedAssetDirectory: null,
+    // savedAssetDirectory: null,
     supportedImageFormats: ["jpg", "jpeg", "png", "gif"],
     supportedAudioFormats: ["mp3", "wav", "ogg"],
     grabbedObject: null,
@@ -37,12 +37,7 @@ function allSprites() {
     return sprites;
 }
 
-async function loadAssetFolder(directory) {
-    if (!window.showDirectoryPicker) {
-        alert("Sorry, this tool only supports browsers (like Chrome...) that use the File System API.");
-        return;
-    }
-
+function loadAssetFolder(files) {
     if (document.querySelector(".folder"))
         document.querySelector(".folder").remove();
     for (let sprite of allSprites()) {
@@ -50,87 +45,85 @@ async function loadAssetFolder(directory) {
             sprite.loaded = false;
         }
     }
-
-    if (!directory)
-        directory = await window.showDirectoryPicker().catch(() => {
-            if (editor.savedAssetDirectory)
-                loadAssetFolder(editor.savedAssetDirectory) 
-        });
-    if (!directory)
-        return;
-    editor.savedAssetDirectory = directory;
-    editor.generatingFiles = true;
-    createFolderElement(_filesystem, directory)
-    .then(el => {
-        el.querySelector("details").open = true;
-        game.windowresize();
-    })
+    var structure = getFolderStructure(files);
+    createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
+    game.windowresize();
+    _folderpicker.value = "";
 }
 
-async function createFolderElement(parentElement, directory, parent) {
+function getFolderStructure(files) {
+    const structure = {};
+    for (let file of files) {
+        const pathParts = file.webkitRelativePath.split('/');
+        let current = structure;
+        for (let i = 0; i < pathParts.length - 1; i++) {
+            const dirName = pathParts[i];
+            if (!current[dirName]) {
+                current[dirName] = { kind: "directory", children: {} };
+            }
+            current = current[dirName].children;
+        }
+        const filename = pathParts[pathParts.length - 1];
+        const filenameParts = filename.split(".");
+        const ext = filenameParts[filenameParts.length - 1];
+        if (editor.supportedImageFormats.includes(ext)) {
+            current[filename] = { 
+                kind: "image", 
+                path: file.webkitRelativePath,
+                file: file
+            };
+        } else if (editor.supportedAudioFormats.includes(ext)) {
+            current[filename] = { 
+                kind: "audio",
+                path: file.webkitRelativePath,
+                file: file
+            };
+        }
+    };
+    return structure;
+}
+
+function createFolderElement(parentElement, directoryName, parent) {
     const el = document.createElement("li");
     el.className = "folder";
     parentElement.appendChild(el);
 
     const details = document.createElement("details");
     const summary = document.createElement("summary");
-    summary.textContent = directory.name;
+    summary.textContent = directoryName;
     setLabel(summary, "folder");
     details.appendChild(summary);
     el.appendChild(details);
 
     const list = document.createElement("ul");
     details.appendChild(list);
-    if (!parent)
-        parent = directory.name + "/";
-    else
-        parent += directory.name + "/";
-
-    if (window.Worker) {
-        const worker = new Worker("workers/directory.js");
-        worker.onmessage = e => {
-            for (const data of e.data) {
-                if (data.kind === "directory") {
-                    createFolderElement(list, data.entry, parent);
-                } else if (data.kind === "image") {
-                    createImageFileElement(list, data, parent);
-                } else if (data.kind === "audio") {
-                    createAudioFileElement(list, data, parent);
-                }
-            }
-        };
-        worker.postMessage({
-            directory: directory,
-            supportedImageFormats: editor.supportedImageFormats,
-            supportedAudioFormats: editor.supportedAudioFormats
-        });
-    } else {
-        for await (const entry of directory.values()) {
-            let ext;
-            if (entry.name.split(".").length > 1)
-                ext = entry.name.split(".").pop().toLowerCase();
-            if (entry.kind === "directory" && !ext) {
-                createFolderElement(list, entry, parent);
-            } else if (editor.supportedImageFormats.includes(ext)) {
-                createImageFileElement(list, {entry}, parent);
-            } else if (editor.supportedAudioFormats.includes(ext)) {
-                createAudioFileElement(list, {entry}, parent);
-            }
+    for (const name in parent[directoryName].children) {
+        if (parent[directoryName].children[name].kind !== "directory")
+            continue;
+        createFolderElement(list, name, parent[directoryName].children);
+    }
+    for (const name in parent[directoryName].children) {
+        switch (parent[directoryName].children[name].kind) {
+            case "image":
+                createImageFileElement(list, name, parent[directoryName].children);
+                break;
+            case "audio":
+                createAudioFileElement(list, name, parent[directoryName].children);
+                break;
         }
     }
-
     return el;
 }
 
-async function createAudioFileElement(parentElement, data, parent) {
+function createAudioFileElement(parentElement, filename, parent) {
     const el = document.createElement("li");
     el.className = "file";
-    el.textContent = data.entry.name;
+    el.textContent = filename;
     parentElement.appendChild(el);
 
-    const filepath = (parent || "") + data.entry.name;
-    const file = data.file || await data.entry.getFile();
-    const url = data.url || URL.createObjectURL(file);
+    const filepath = parent[filename].path;
+    const file = parent[filename].file;
+    const url = URL.createObjectURL(file);
     const sprite = new Sprite({
         src: "_res/music.png",
         onload: function() { this.classList.add("loaded") }.bind(el)
@@ -165,18 +158,18 @@ async function createAudioFileElement(parentElement, data, parent) {
     return el;
 }
 
-async function createImageFileElement(parentElement, data, parent) {
+function createImageFileElement(parentElement, filename, parent) {
     const el = document.createElement("li");
     el.className = "file";
-    el.textContent = data.entry.name;
+    el.textContent = filename;
     parentElement.appendChild(el);
 
-    const filepath = (parent || "") + data.entry.name;
-    const file = data.file || await data.entry.getFile();
-    const url = data.url || URL.createObjectURL(file);
+    const filepath = parent[filename].path;
+    const file = parent[filename].file;
+    const url = URL.createObjectURL(file);
 
     const sprite = new Sprite({
-        src: data.entry.name,
+        src: filepath,
         objectURL: url,
         onload: function() { this.classList.add("loaded") }.bind(el)
     });
@@ -280,7 +273,7 @@ function loadGame(file) {
     reader.addEventListener("load", async () => {
         const data = JSON.parse(reader.result);
         game = new Game(data);
-        await loadAssetFolder(editor.savedAssetDirectory);
+        _folderpicker.click();
         updateScenes();
         updateSounds();
     })
