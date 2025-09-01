@@ -156,7 +156,8 @@ class DialogueBox {
                     } else if (node.type === 'glue') {
                         x += node.width + line.ratio * (line.ratio < 0 ? node.shrink : node.stretch);
                     } else if (node.type === 'penalty' && node.penalty === 100 && index === array.length - 1) {
-                        result.push({ text: "-", x, y });
+                        if (result.length === 0 || result[result.length - 1].text[result[result.length - 1].text.length - 1] === "-")
+                            result.push({ text: "-", x, y });
                     }
                 });
                 y++;
