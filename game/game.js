@@ -239,7 +239,12 @@ return {
         this.currentScene = sceneName;
         if (editor) {
             _sceneselect.value = this.currentScene;
-            _scenebg.style.backgroundImage = `url(${this.scenes[this.currentScene].background?.image.src})`;
+            if (!this.scenes[this.currentScene].background) {
+                _scenebg.title = "drop background image here";
+            } else {
+                _scenebg.title = this.scenes[this.currentScene].background.src;
+                _scenebg.style.backgroundImage = `url(${this.scenes[this.currentScene].background?.image.src})`;
+            }
         }
     }
 
@@ -285,8 +290,9 @@ return {
             if (this.currentScene)
                 this.scenes[this.currentScene].update(delta);
         }
-        if (editor && editor.selectedObject && this.mouse.clicked && !editor.selectedObject.hovered()) {
-            deselectObject();
+        if (editor) {
+            if (editor.selectedObject && this.mouse.clicked && !editor.selectedObject.hovered())
+                deselectObject();
         }
         
         this.previousTime = now;
@@ -387,6 +393,12 @@ class Scene {
             let object = this.objects[i];
             object.update(delta);
         }
+        if (
+            editor && !this.hoveredObject && 
+            this.game.mouse.position[0] >= 0 && this.game.mouse.position[0] <= this.game.canvas.width &&
+            this.game.mouse.position[1] >= 0 && this.game.mouse.position[1] <= this.game.canvas.height
+        )
+            _hoveralt.textContent = "";
     }
 
     generateData() {
@@ -467,6 +479,7 @@ class GameObject {
         if (ENV === "editor" && editor) {
             if (hovered) {
                 this.scene.game.canvas.classList.add("grab");
+                _hoveralt.textContent = this.sprite.src;
             }
             if (!editor.grabbedObject && hovered && mouse.down) {
                 grabObject(this);

@@ -44,6 +44,11 @@ function clearAssetFolder() {
             sprite.loaded = false;
         }
     }
+    _cursordefault.title = "drop default cursor image here";
+    _cursordown.title = "drop held cursor image here";
+    _cursordefault.style.backgroundImage = "url(_res/cursor_open.png)";
+    _cursordown.style.backgroundImage = "url(_res/cursor_closed.png)";
+    _sfxdropzone.title = "drop sound file here";
 }
 
 function loadAssetFolder(files) {
@@ -52,6 +57,15 @@ function loadAssetFolder(files) {
     createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
     game.windowresize();
     _folderpicker.value = "";
+    updateScenes();
+    if (game.cursorDefault.src !== "_res/cursor_open.png") {
+        _cursordefault.title = game.cursorDefault.src;
+        _cursordefault.style.backgroundImage = `url(${game.cursorDefault.image.src})`;
+    }
+    if (game.cursorDown.src !== "_res/cursor_closed.png") {
+        _cursordown.title = game.cursorDown.src;
+        _cursordown.style.backgroundImage = `url(${game.cursorDown.image.src})`;
+    }
 }
 
 function getFolderStructure(files) {
@@ -94,7 +108,8 @@ function createFolderElement(parentElement, directoryName, parent) {
     const details = document.createElement("details");
     const summary = document.createElement("summary");
     summary.textContent = directoryName;
-    setLabel(summary, "folder");
+    summary.title = "folder";
+    setLabel(summary);
     details.appendChild(summary);
     el.appendChild(details);
 
@@ -150,7 +165,8 @@ function createAudioFileElement(parentElement, filename, parent) {
             grabObject(object);
         }
     })
-    setLabel(el, "audio file");
+    el.title = "audio file";
+    setLabel(el);
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
@@ -195,7 +211,8 @@ function createImageFileElement(parentElement, filename, parent) {
             grabObject(object);
         }
     })
-    setLabel(el, "image file");
+    el.title = "image file";
+    setLabel(el);
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
@@ -358,6 +375,7 @@ function setSceneBackground() {
     if (object) {
         game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _scenebg.style.background = `url(${object.sprite.image.src})`;
+        _scenebg.title = object.sprite.src;
     }
 }
 
@@ -366,6 +384,7 @@ function setCursorDefault() {
     if (object) {
         game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _cursordefault.style.background = `url(${object.sprite.image.src})`;
+        _cursordefault.title = object.sprite.src;
     }
 }
 
@@ -374,6 +393,7 @@ function setCursorDown() {
     if (object) {
         game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _cursordown.style.background = `url(${object.sprite.image.src})`;
+        _cursordown.title = object.sprite.src;
     }
 }
 
@@ -398,6 +418,7 @@ function addDialogueType(type) {
 function selectSound() {
     editor.selectedSoundObject = editor.grabbedObject;
     _sfxdropzone.style.backgroundImage = `url(${editor.selectedSoundObject.sprite.image.src})`;
+    _sfxdropzone.title = editor.grabbedObject.sprite.src;
 }
 
 function addSound() {
@@ -427,6 +448,7 @@ function addSound() {
     });
     _sfxdropzone.style.backgroundImage = "none";
     _sfxname.value = "";
+    _sfxdropzone.title = "drop sound file here";
     editor.selectedSoundObject = null;
     updateSounds();
 }
@@ -462,11 +484,11 @@ function deleteScene() {
 
 // ui
 
-function setLabel(el, label) {
-    el.addEventListener("mouseover", () => {
-        _hoveralt.textContent = label;
+function setLabel(el) {
+    el.addEventListener("mouseover", function() {
+        _hoveralt.textContent = this.title;
     })
-    el.addEventListener("mouseout", () => {
+    el.addEventListener("mouseout", function() {
         _hoveralt.textContent = "";
     })
 }
@@ -494,7 +516,12 @@ function updateScenes() {
         _sceneselect.appendChild(option);
     }
     _sceneselect.value = game.currentScene;
-    _scenebg.style.backgroundImage = `url(${game.scenes[game.currentScene].background?.image.src})`;
+    if (game.scenes[game.currentScene].background) {
+        _scenebg.title = game.scenes[game.currentScene].background.src;
+        _scenebg.style.backgroundImage = `url(${game.scenes[game.currentScene].background.image.src})`;
+    } else {
+        _scenebg.title = "drop background image here";
+    }
 }
 
 function updateSounds() {
@@ -523,8 +550,8 @@ function createSoundElement(sound, onremove) {
     var button = document.createElement("button");
     button.type = "button";
     button.textContent = sound;
-    button.title = "play sound";
-    setLabel(button, button.title);
+    button.title = game.sounds[sound].src;
+    setLabel(button);
     button.onclick = () => {
         game.playSound(sound);
     }
@@ -648,7 +675,7 @@ function updateDialogueTypes() {
             removeButton.type = "button";
             removeButton.textContent = "delete";
             removeButton.title = "remove dialogue type";
-            setLabel(removeButton, removeButton.title);
+            setLabel(removeButton);
             removeButton.onclick = () => {
                 if (editor.disablePrompts || confirm(`delete dialogue type "${id}"?`)) {
                     delete game.dialogueTypes[id];

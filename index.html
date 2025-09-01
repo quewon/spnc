@@ -201,12 +201,12 @@
 
     <aside>
         <div class="flex">
-            <button type="button" class="expand" onclick="this.nextElementSibling.click()">load</button>
+            <button type="button" class="expand" onclick="this.nextElementSibling.click()" title="load .spnc file">load</button>
                 <input type="file" class="hidden" accept=".spnc" onchange="loadGame(this.files[0])" id="_loadbutton">
-            <button type="button" class="expand" onclick="saveGame()">save</button>
-            <button type="button" class="expand" onclick="exportGame()">export game</button>
+            <button type="button" class="expand" onclick="saveGame()" title="save .spnc file">save</button>
+            <button type="button" class="expand" onclick="exportGame()" title="export to web">export game</button>
         </div>
-        <button id="_folderpickerbutton" type="button" onclick="this.nextElementSibling.click()" title="(re)load asset folder">(re)load an asset folder</button>
+        <button id="_folderpickerbutton" type="button" onclick="this.nextElementSibling.click()">(re)load an asset folder</button>
             <input id="_folderpicker" type="file" webkitdirectory multiple onchange="loadAssetFolder(this.files)" class="hidden">
         <ul id="_filesystem"></ul>
     </aside>
@@ -316,7 +316,7 @@
 <script type="text/javascript">
     window.addEventListener("load", () => {
         for (let el of document.querySelectorAll("*[title]"))
-            setLabel(el, el.title);
+            setLabel(el);
 
         for (let dropzone of document.querySelectorAll(".dropzone")) {
             dropzone.addEventListener("mouseenter", function() {
