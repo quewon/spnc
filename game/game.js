@@ -150,14 +150,13 @@ return {
 
     destroy() {
         this.destroyed = true;
+        this.stopSounds();
         this.canvas.removeEventListener("mousedown", this.mousedownEventListener);
         document.removeEventListener("mouseup", this.mouseupEventListener);
         window.removeEventListener("blur", this.mouseupEventListener);
         document.removeEventListener("mousemove", this.mousemoveEventListener);
         this.canvas.removeEventListener("click", this.mouseclickEventListener);
         window.removeEventListener("resize", this.resizeEventListener);
-        outputAudio.pause();
-        outputAudio.dataset.started = false;
     }
 
     mousedown(e) {
@@ -313,6 +312,11 @@ return {
             return;
         if (this.sounds[sound])
             this.sounds[sound].stop();
+    }
+
+    stopSounds() {
+        outputAudio.pause();
+        outputAudio.dataset.started = false;
     }
 
     generateSoundsData() {

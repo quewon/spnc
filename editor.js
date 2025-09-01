@@ -227,10 +227,8 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
-    for (let sound in game.sounds)
-        game.sounds[sound].stop();
-    const promptvalue = prompt("what will you name this game?", "untitled");
-    if (promptvalue === null || promptvalue.trim() === "")
+    const promptvalue = await prompt("what will you name this game?", "untitled");
+    if (promptvalue === null)
         return;
     const gametitle = promptvalue.trim();
 
@@ -313,11 +311,9 @@ function loadGame(file) {
     _loadbutton.value = "";
 }
 
-function saveGame() {
-    for (let sound in game.sounds)
-        game.sounds[sound].stop();
-    const promptvalue = prompt("what will you name this file?", "untitled");
-    if (promptvalue === null || promptvalue.trim() === "")
+async function saveGame() {
+    const promptvalue = await prompt("what will you name this file?", "untitled");
+    if (promptvalue === null)
         return;
     const filename = promptvalue.trim();
     const file = new Blob([JSON.stringify(game.generateData())], { type: "text/plain" });
@@ -475,8 +471,9 @@ function addScene() {
     updateScenes();
 }
 
-function deleteScene() {
-    if (!editor.disablePrompts && !confirm(`are you sure you want to delete the scene "${game.currentScene}"?`))
+async function deleteScene() {
+    game.stopSounds();
+    if (!editor.disablePrompts && !(await confirm(`are you sure you want to delete the scene "${game.currentScene}"?`)))
         return;
     delete game.scenes[game.currentScene];
     if (Object.keys(game.scenes).length === 0) {
@@ -681,8 +678,8 @@ function updateDialogueTypes() {
             removeButton.textContent = "delete";
             removeButton.title = "remove dialogue type";
             setLabel(removeButton);
-            removeButton.onclick = () => {
-                if (editor.disablePrompts || confirm(`delete dialogue type "${id}"?`)) {
+            removeButton.onclick = async () => {
+                if (editor.disablePrompts || (await confirm(`delete dialogue type "${id}"?`))) {
                     delete game.dialogueTypes[id];
                     updateDialogueTypes();
                 }
@@ -702,6 +699,34 @@ function resizeTextarea() {
 // events
 
 window.addEventListener("load", () => {
+    window.alert = function(text) {
+        _alertprompt.textContent = text;
+        setTimeout(_alert.showModal.bind(_alert), 1);
+    }
+    window.confirm = async function(text) {
+        _confirmvalue.checked = false;
+        _confirmprompt.textContent = text;
+        setTimeout(_confirm.showModal.bind(_confirm), 1);
+        return new Promise(resolve => {
+            _confirm.onclose = () => {
+                resolve(_confirmvalue.checked === true);
+            }
+        })
+    }
+    window.prompt = async function(text, placeholder) {
+        _promptprompt.textContent = text;
+        _promptcanceled.checked = false;
+        _promptinput.value = "";
+        _promptinput.placeholder = placeholder;
+        setTimeout(_prompt.showModal.bind(_prompt), 1);
+        return new Promise(resolve => {
+            _prompt.onclose = () => {
+                let input = _promptinput.value.trim() === "" ? placeholder : _promptinput.value.trim();
+                resolve(_promptcanceled.checked === true ? null : input);
+            }
+        })
+    }
+
     game = new Game({
         canvas,
         width: editor.gameWidth,
@@ -779,7 +804,7 @@ window.addEventListener("load", () => {
         }
     })
 
-    document.addEventListener("mouseup", () => {
+    document.addEventListener("mouseup", async () => {
         if (editor.grabbedObject) {
             if (
                 game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
@@ -788,7 +813,7 @@ window.addEventListener("load", () => {
                 if (editor.disablePrompts) {
                     editor.grabbedObject.scene.removeObject(editor.grabbedObject);
                 } else {
-                    if (!confirm("delete this object?")) {
+                    if (!(await confirm("delete this object?"))) {
                         editor.grabbedObject.position = [
                             game.canvas.width/2 - editor.grabbedObject.width/2,
                             game.canvas.height/2 - editor.grabbedObject.height/2

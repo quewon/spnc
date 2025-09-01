@@ -242,7 +242,7 @@
         :: SCENE
         <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
         <div class="flex">
-            <input id="_scenename" type="text" title="new scene name" class="expand" placeholder="id" onkeyup="if(event.key==='Enter')this.nextElementSibling.click()">
+            <input id="_scenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
         </div>
         <button type="button" class="delete" onclick="deleteScene()">delete scene</button>
@@ -257,7 +257,7 @@
             :: SFX
             <ul id="_soundslist"></ul>
             <div class="flex">
-                <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeyup="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
+                <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
                 <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="drop sound file here">file (mp3, wav, ogg)</div>
                 <button type="button" onclick="addSound()" title="create sound">+</button>
             </div>
@@ -267,7 +267,7 @@
             :: DIALOGUE TYPES
             <ul id="_dialoguetypes"></ul>
             <div class="flex">
-                <input type="text" placeholder="id" class="expand" title="new type name" onkeyup="if(event.key==='Enter')this.nextElementSibling.click()">
+                <input type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
                 <button type="button" title="create type" onclick="addDialogueType(this.previousElementSibling.value); this.previousElementSibling.value = ''">+</button>
             </div>
         </div>
@@ -306,8 +306,37 @@
                 <li>this tool has no way of collecting your data.</li>
             </ul>
         </p>
-        <br>
-        <button type="button" onclick="this.parentElement.close()">close</button>
+        <p>
+            <button type="button" onclick="this.parentElement.parentElement.close()">close</button>
+        </p>
+    </dialog>
+
+    <dialog id="_prompt">
+        <p id="_promptprompt"></p>
+        <p>
+            <input autofocus id="_promptinput" type="text" onkeydown="if(event.key==='Enter'){_promptcanceled.checked=false;this.parentElement.parentElement.close()}">
+            <input id="_promptcanceled" type="checkbox" class="hidden" />
+        </p>
+        <p>
+            <button type="button" onclick="_promptcanceled.checked=true;this.parentElement.parentElement.close()">cancel</button>
+            <button type="button" onclick="_promptcanceled.checked=false;this.parentElement.parentElement.close()">ok</button>
+        </p>
+    </dialog>
+
+    <dialog id="_confirm">
+        <p id="_confirmprompt"></p>
+        <input id="_confirmvalue" type="checkbox" class="hidden" />
+        <p>
+            <button type="button" onclick="_confirmvalue.checked=false; this.parentElement.parentElement.close()" autofocus>cancel</button>
+            <button type="button" onclick="_confirmvalue.checked=true; this.parentElement.parentElement.close()">ok</button>
+        </p>
+    </dialog>
+
+    <dialog id="_alert">
+        <p id="_alertprompt"></p>
+        <p>
+            <button type="button" onclick="this.parentElement.parentElement.close()">ok</button>
+        </p>
     </dialog>
     
 </body>
