@@ -207,7 +207,10 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
-    const gametitle = prompt("what will you name this game?").trim();
+    const promptvalue = prompt("what will you name this game?", "untitled");
+    if (promptvalue === null || promptvalue.trim() === "")
+        return;
+    const gametitle = promptvalue.trim();
 
     var zip = new JSZip();
     
@@ -264,7 +267,7 @@ async function exportGame() {
     zip.file("index.html", html);
     zip.generateAsync({ type: "blob" })
     .then(function(content) {
-        saveAs(content, (gametitle === "" ? "untitled" : gametitle) + ".zip");
+        saveAs(content, gametitle + ".zip");
     });
 }
 
@@ -273,6 +276,7 @@ function loadGame(file) {
     reader.addEventListener("load", async () => {
         const data = JSON.parse(reader.result);
         game = new Game(data);
+        _folderpickerbutton.focus();
         _folderpicker.click();
         updateScenes();
         updateSounds();
@@ -283,7 +287,10 @@ function loadGame(file) {
 }
 
 function saveGame() {
-    const filename = prompt("what will you name this file?").trim();
+    const promptvalue = prompt("what will you name this file?", "untitled");
+    if (promptvalue === null || promptvalue.trim() === "")
+        return;
+    const filename = promptvalue.trim();
     const file = new Blob([JSON.stringify(game.generateData())], { type: "text/plain" });
     const a = document.createElement("a");
     const url = URL.createObjectURL(file);
