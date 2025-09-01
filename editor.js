@@ -7,7 +7,7 @@ var editor = {
     grabOffset: null,
     scrollOffset: null,
     selectedObject: null,
-    disablePrompts: true,
+    disablePrompts: false,
     selectedSoundObject: null,
     gameWidth: 800,
     gameHeight: 600
@@ -353,6 +353,7 @@ function selectObject(object) {
     _objectname.textContent = object.sprite.src;
     _objectscript.value = object.script;
     _objectscript.oninput = () => {
+        object.scriptChanged = true;
         object.script = _objectscript.value;
         object.dialogue = new Dialogue({
             text: object.script,
@@ -456,7 +457,7 @@ function addSound() {
 }
 
 function addScene() {
-    let id = _scenename.value.trim();
+    let id = _newscenename.value.trim();
     if (id === "") {
         alert("this scene needs a name.");
         return;
@@ -467,13 +468,32 @@ function addScene() {
     }
     game.scenes[id] = new Scene({ game });
     game.setScene(id);
-    _scenename.value = "";
+    _newscenename.value = "";
+    updateScenes();
+}
+
+function renameScene() {
+    let id = _scenename.value.trim();
+    if (id === "") {
+        _scenename.value = game.currentScene;
+        return;
+    }
+    if (game.scenes[id]) {
+        alert(`a scene called "${id}" already exists!`);
+        return;
+    }
+    game.scenes[id] = game.scenes[game.currentScene];
+    delete game.scenes[game.currentScene];
+    game.currentScene = id;
     updateScenes();
 }
 
 async function deleteScene() {
     game.stopSounds();
-    if (!(await confirm(`are you sure you want to delete the scene "${game.currentScene}"?`)))
+    if (
+        (game.scenes[game.currentScene].objects.length > 0 || game.scenes[game.currentScene].background) &&
+        !(await confirm(`delete the scene "${game.currentScene}"?`))
+    )
         return;
     delete game.scenes[game.currentScene];
     if (Object.keys(game.scenes).length === 0) {
@@ -831,25 +851,26 @@ window.addEventListener("load", () => {
 
     document.addEventListener("mouseup", async () => {
         if (editor.grabbedObject) {
+            document.body.classList.remove("dragging");
+            document.body.classList.remove("delete-object");
+            var object = editor.grabbedObject;
+            editor.grabbedObject = null;
             if (
                 game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
                 game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
             ) {
-                if (!(await confirm("delete this object?"))) {
-                    editor.grabbedObject.position = [
-                        game.canvas.width/2 - editor.grabbedObject.width/2,
-                        game.canvas.height/2 - editor.grabbedObject.height/2
+                if (object.scriptChanged && !(await confirm("delete this object?"))) {
+                    object.position = [
+                        game.canvas.width/2 - object.sprite.width/2,
+                        game.canvas.height/2 - object.sprite.height/2
                     ]
                 } else {
-                    editor.grabbedObject.scene.removeObject(editor.grabbedObject);
+                    object.scene.removeObject(object);
                 }
-                if (editor.grabbedObject === editor.selectedObject) {
+                if (object === editor.selectedObject) {
                     deselectObject();
                 }
             }
-            document.body.classList.remove("dragging");
-            document.body.classList.remove("delete-object");
-            editor.grabbedObject = null;
         }
     })
 })

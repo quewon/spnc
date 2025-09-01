@@ -238,6 +238,7 @@ return {
         this.currentScene = sceneName;
         if (editor) {
             _sceneselect.value = this.currentScene;
+            _scenename.value = this.currentScene;
             if (!this.scenes[this.currentScene].background) {
                 _scenebg.title = "drop background image here";
             } else {

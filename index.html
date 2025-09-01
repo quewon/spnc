@@ -243,12 +243,14 @@
     </aside>
     <aside id="_gamemenu">
         :: SCENE
+        <input id="_scenename" type="text" title="scene name" onchange="renameScene()" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
         <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
+        <button type="button" class="delete" onclick="deleteScene()">delete scene</button>
         <div class="flex">
-            <input id="_scenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
+            <span>+</span>
+            <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
         </div>
-        <button type="button" class="delete" onclick="deleteScene()">delete scene</button>
         <br>
         :: CURSOR
         <div class="flex">
@@ -273,11 +275,6 @@
                 <input type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
                 <button type="button" title="create type" onclick="addDialogueType(this.previousElementSibling.value); this.previousElementSibling.value = ''">+</button>
             </div>
-        </div>
-        <br>
-        <div class="expand"></div>
-        <div style="text-align: right">
-            <input type="checkbox" onchange="editor.disablePrompts=this.checked" checked /> disable confirmation prompts
         </div>
     </aside>
 
