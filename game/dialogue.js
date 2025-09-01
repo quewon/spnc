@@ -90,6 +90,9 @@ class DialogueBox {
     
     closed = false;
     text = "";
+    brokenText;
+    width = 0;
+    lineHeight = 0;
     charIndex = 0;
     awaitingInput = false;
     playf = 0;
@@ -109,32 +112,61 @@ class DialogueBox {
         }
         if (o.text)
             this.text = o.text;
+        this.width = this.type.width;
+        this.brokenText = this.breakText(this.text, this.width);
     }
 
-    breakLinesToFit(line, width) {
-        this.game.context.font = this.type.font;
-        this.game.context.textAlign = "left";
-        this.game.context.textBaseline = "top";
-        let lines = [];
-        let i = 0;
-        while (line.length >= i) {
-            let sub = line.substring(i, line.length);
-            let words = sub.split(/[^A-Za-z.?!'",]/).filter(w => w !== "");
-            if (words.length === 0)
-                break;
-            let word = words[0];
-            let length = word.length + sub.indexOf(word);
-            if (this.game.context.measureText(line.substring(0, i + length)).width <= width) {
-                i += length;
-            } else {
-                lines.push(line.substring(0, i).trim());
-                line = line.substring(i, line.length);
-                i = 0;
+    breakText(line, width) {
+        const type = this.type.textAlign;
+        var context = this.game.context,
+        format, nodes, breaks;
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.font = `${this.type.fontSize}px ${this.type.fontFamily}`;
+        let mm = context.measureText("thinking");
+        this.lineHeight = mm.fontBoundingBoxAscent + mm.fontBoundingBoxDescent;
+        format = Typeset.formatter(function (str) {
+            return context.measureText(str).width;
+        });
+        nodes = format[type] ? format[type](line) : format["left"](line);
+        breaks = Typeset.linebreak(nodes, [width], {tolerance: Typeset.linebreak.infinity});
+        if (breaks.length !== 0) {
+            var result = [];
+            var i, lines = [], point, j, r, lineStart = 0, y = 0;
+            for (i = 1; i < breaks.length; i++) {
+                point = breaks[i].position,
+                r = breaks[i].ratio;
+                for (var j = lineStart; j < nodes.length; j += 1) {
+                    if (nodes[j].type === 'box' || (nodes[j].type === 'penalty' && nodes[j].penalty === -Typeset.linebreak.infinity)) {
+                        lineStart = j;
+                        break;
+                    }
+                }
+                lines.push({ratio: r, nodes: nodes.slice(lineStart, point + 1), position: point});
+                lineStart = point;
             }
+            var rx = 0;
+            lines.forEach(function (line, lineIndex) {
+                var x = 0;
+                line.nodes.forEach(function (node, index, array) {
+                    if (node.type === 'box') {
+                        result.push({ text: node.value, x, y });
+                        x += node.width;
+                        rx = x;
+                    } else if (node.type === 'glue') {
+                        x += node.width + line.ratio * (line.ratio < 0 ? node.shrink : node.stretch);
+                    } else if (node.type === 'penalty' && node.penalty === 100 && index === array.length - 1) {
+                        result.push({ text: "-", x, y });
+                    }
+                });
+                y++;
+            });
+            if (y === 1)
+                this.width = Math.min(rx, this.width);
+            return result;
+        } else {
+            return [];
         }
-        if (line.trim() !== "")
-            lines.push(line.trim());
-        return lines;
     }
 
     close() {
@@ -142,7 +174,7 @@ class DialogueBox {
     }
 
     draw() {
-        if (this.boxf === 0) return;
+        if (this.boxf === 0 || this.brokenText.length === 0) return;
 
         var context = this.game.context;
 
@@ -151,18 +183,9 @@ class DialogueBox {
         context.textAlign = "left";
         context.textBaseline = "top";
         
-        let width = this.type.width;
-
-        let allLines = this.breakLinesToFit(this.text, width);
-        let lines = this.breakLinesToFit(this.text.substring(0, this.charIndex), width);
+        let width = this.width;
+        let height = (this.brokenText[this.brokenText.length - 1].y + 1) * this.lineHeight * smootherstep(this.boxf);
         
-        let mm = context.measureText(allLines.length === 1 ? allLines[0] : lines[0]);
-        if (allLines.length === 1)
-            width = mm.width;
-        let lineHeight = mm.fontBoundingBoxAscent + mm.fontBoundingBoxDescent;
-        let height = allLines.length * lineHeight * smootherstep(this.boxf);
-        let p = this.type.textPadding;
-
         var x, y;
         try {
             let pos = new Function('canvas', 'width', 'height', this.type.position).bind(this)(this.game.canvas, width, height);
@@ -173,7 +196,8 @@ class DialogueBox {
             y = 0;
             console.log("error with position function.");
         }
-
+        
+        let p = this.type.textPadding;
         context.fillStyle = this.type.backgroundColor;
         context.beginPath();
         context.rect(x - p, y - p, width + p*2, height + (p * smootherstep(this.boxf))*2);
@@ -183,12 +207,21 @@ class DialogueBox {
             context.lineWidth = this.type.borderWidth;
             context.stroke();
         }
-        if (lines[0] !== "" && this.boxf === 1) {
+        if (this.boxf === 1) {
             context.fillStyle = this.type.color;
-            for (let i=0; i<lines.length; i++)
-                context.fillText(lines[i], x, y + i * lineHeight);
+            var ci = 0;
+            for (let node of this.brokenText) {
+                let nextIndex = ci + this.text.slice(ci).indexOf(node.text) + node.text.length;
+                if (nextIndex >= this.charIndex) {
+                    context.fillText(this.text.substring(ci, this.charIndex).trim(), x + node.x, y + (node.y * this.lineHeight));
+                    break;
+                } else {
+                    context.fillText(node.text, x + node.x, y + (node.y * this.lineHeight));
+                }
+                ci = nextIndex;
+            }
         }
-
+        
         context.globalAlpha = 1;
     }
 

@@ -176,12 +176,17 @@
             background: rgba(0, 0, 0, .9);
         }
     </style>
-    <script src="FileSaver.min.js" defer></script>
-    <script src="jszip.min.js" defer></script>
-    <script src="game/util.js" defer></script>
-    <script src="game/sprite.js" defer></script>
-    <script src="game/dialogue.js" defer></script>
-    <script src="game/game.js" defer></script>
+    <script type="text/javascript" src="lib/typeset/src/linked-list.js"></script>
+    <script type="text/javascript" src="lib/typeset/src/linebreak.js"></script>
+    <script type="text/javascript" src="lib/typeset/src/formatter.js"></script>
+    <script type="text/javascript" src="lib/typeset/lib/hypher.js"></script>
+    <script type="text/javascript" src="lib/typeset/lib/en-us.js"></script>
+    <script type="text/javascript" src="lib/FileSaver.min.js" defer></script>
+    <script type="text/javascript" src="lib/jszip.min.js" defer></script>
+    <script type="text/javascript" src="game/util.js" defer></script>
+    <script type="text/javascript" src="game/sprite.js" defer></script>
+    <script type="text/javascript" src="game/dialogue.js" defer></script>
+    <script type="text/javascript" src="game/game.js" defer></script>
 </head>
 <body>
 
@@ -297,8 +302,8 @@
     
 </body>
 
-<script src="editor.js"></script>
-<script>
+<script type="text/javascript" src="editor.js"></script>
+<script type="text/javascript">
     window.addEventListener("load", () => {
         for (let el of document.querySelectorAll("*[title]"))
             setLabel(el, el.title);

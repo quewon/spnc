@@ -41,6 +41,7 @@ class Game {
 //         },
         default: {
             textPadding: 20,
+            textAlign: "justify",
             width: 500,
             fontSize: 26,
             fontFamily: "'Times', serif",
