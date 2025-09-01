@@ -473,7 +473,7 @@ function addScene() {
 
 async function deleteScene() {
     game.stopSounds();
-    if (!editor.disablePrompts && !(await confirm(`are you sure you want to delete the scene "${game.currentScene}"?`)))
+    if (!(await confirm(`are you sure you want to delete the scene "${game.currentScene}"?`)))
         return;
     delete game.scenes[game.currentScene];
     if (Object.keys(game.scenes).length === 0) {
@@ -679,7 +679,7 @@ function updateDialogueTypes() {
             removeButton.title = "remove dialogue type";
             setLabel(removeButton);
             removeButton.onclick = async () => {
-                if (editor.disablePrompts || (await confirm(`delete dialogue type "${id}"?`))) {
+                if (await confirm(`delete dialogue type "${id}"?`)) {
                     delete game.dialogueTypes[id];
                     updateDialogueTypes();
                 }
@@ -704,6 +704,8 @@ window.addEventListener("load", () => {
         setTimeout(_alert.showModal.bind(_alert), 1);
     }
     window.confirm = async function(text) {
+        if (editor.disablePrompts)
+            return true;
         _confirmvalue.checked = false;
         _confirmprompt.textContent = text;
         setTimeout(_confirm.showModal.bind(_confirm), 1);
@@ -810,17 +812,13 @@ window.addEventListener("load", () => {
                 game.mouse.position[0] < 0 || game.mouse.position[1] < 0 || 
                 game.mouse.position[0] > game.canvas.width || game.mouse.position[1] > game.canvas.height
             ) {
-                if (editor.disablePrompts) {
-                    editor.grabbedObject.scene.removeObject(editor.grabbedObject);
+                if (!(await confirm("delete this object?"))) {
+                    editor.grabbedObject.position = [
+                        game.canvas.width/2 - editor.grabbedObject.width/2,
+                        game.canvas.height/2 - editor.grabbedObject.height/2
+                    ]
                 } else {
-                    if (!(await confirm("delete this object?"))) {
-                        editor.grabbedObject.position = [
-                            game.canvas.width/2 - editor.grabbedObject.width/2,
-                            game.canvas.height/2 - editor.grabbedObject.height/2
-                        ]
-                    } else {
-                        editor.grabbedObject.scene.removeObject(editor.grabbedObject);
-                    }
+                    editor.grabbedObject.scene.removeObject(editor.grabbedObject);
                 }
                 if (editor.grabbedObject === editor.selectedObject) {
                     deselectObject();
