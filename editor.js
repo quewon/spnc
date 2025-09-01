@@ -119,7 +119,7 @@ async function createAudioFileElement(fileHandle, parent) {
             let scene = game.scenes[game.currentScene];
             let object = new GameObject({
                 scene,
-                sprite: { src: "_res/music.png" },
+                sprite: { src: "_res/music.png", buffer: sprite.buffer },
                 script: `// SFX OBJECT -- drag me into the sfx file box!
 //SRC:${filepath}
 //URL:${url}`,
@@ -164,7 +164,8 @@ async function createImageFileElement(fileHandle, parent) {
                 scene,
                 sprite: {
                     src: filepath,
-                    objectURL: url
+                    objectURL: url,
+                    imagedata: sprite.imagedata
                 },
                 position: [
                     game.mouse.position[0] - sprite.width/2,
@@ -413,7 +414,7 @@ function deselectObject() {
 function setSceneBackground() {
     var object = editor.grabbedObject;
     if (object) {
-        game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
+        game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
         _scenebg.style.background = `url(${object.sprite.image.src})`;
     }
 }
@@ -421,7 +422,7 @@ function setSceneBackground() {
 function setCursorDefault() {
     var object = editor.grabbedObject;
     if (object) {
-        game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
+        game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
         _cursordefault.style.background = `url(${object.sprite.image.src})`;
     }
 }
@@ -429,7 +430,7 @@ function setCursorDefault() {
 function setCursorDown() {
     var object = editor.grabbedObject;
     if (object) {
-        game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
+        game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
         _cursordown.style.background = `url(${object.sprite.image.src})`;
     }
 }

@@ -21,7 +21,7 @@ class Sprite {
             this.loaded = true;
             this.width = this.image.naturalWidth;
             this.height = this.image.naturalHeight;
-            this.imagedata = this.generateImagedata(this.image);
+            this.imagedata = o.imagedata || this.generateImagedata(this.image);
         }
     }
 
@@ -80,7 +80,13 @@ class AudioSprite {
 
     constructor(o) {
         this.src = o.src;
-        this.setSource(o.context, o.objectURL || this.src);
+        if (o.buffer) {
+            this.buffer = o.buffer;
+            this.loaded = true;
+            this.url = o.objectURL || this.src;
+        } else {
+            this.setSource(o.context, o.objectURL || this.src);
+        }
     }
 
     setSource(context, src) {
