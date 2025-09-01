@@ -218,7 +218,14 @@ async function exportGame() {
 
     var zip = new JSZip();
     
-    var res = [];
+    var res = [
+        "_lib/typeset/lib/en-us.js",
+        "_lib/typeset/lib/hypher.js",
+        "_lib/typeset/src/formatter.js",
+        "_lib/typeset/src/linebreak.js",
+        "_lib/typeset/src/linked-list.js",
+        "_lib/typeset/src/LICENSE",
+    ];
     var objecturl = [];
     for (let sprite of allSprites()) {
         if (sprite.src.includes("_res/"))
@@ -250,7 +257,7 @@ async function exportGame() {
         fetch("game/util.js").then(x => x.text()),
         fetch("game/sprite.js").then(x => x.text()),
         fetch("game/dialogue.js").then(x => x.text()),
-        fetch("game/game.js").then(x => x.text())
+        fetch("game/game.js").then(x => x.text()),
     ]).then(([template, util, sprite, dialogue, gamejs]) => {
         html = template
                .replace("GAME_TITLE_", gametitle)
@@ -258,7 +265,7 @@ async function exportGame() {
                .replace("GAME_SPRITE_JS_", sprite)
                .replace("GAME_DIALOGUE_JS_", dialogue)
                .replace("GAME_GAME_JS_", gamejs)
-               .replace("GAME_DATA_", JSON.stringify(game.generateData()));
+               .replace("GAME_DATA_", JSON.stringify(game.generateData()))
     });
 
     zip.file("index.html", html);
