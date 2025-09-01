@@ -619,7 +619,7 @@ function updateDialogueTypes() {
                 if (this.type === "number")
                     game.dialogueTypes[this.dataset.id][this.dataset.property] = parseFloat(this.value);
                 else
-                    game.dialogueTypes[this.dataset.id][this.dataset.property] = this.value === "" ? null : this.value;
+                    game.dialogueTypes[this.dataset.id][this.dataset.property] = this.value.trim() === "" ? null : this.value.trim();
                 if (this.dataset.id === "default") {
                     for (let nondefault of document.querySelectorAll("[data-property]")) {
                         if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property) {

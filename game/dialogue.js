@@ -35,12 +35,14 @@ class Dialogue {
 
     playLine() {
         let data = this.lines[this.lineIndex];
-        for (let i=0; i<this.boxes.length; i++) {
-            if (this.boxes[i].closed) continue;
-            if (this.boxes[i].type === data.type || this.lineIndex - i > 1) {
-                this.boxes[i].close();
-            }
-        }
+        // for (let i=0; i<this.boxes.length; i++) {
+        //     if (this.boxes[i].closed) continue;
+        //     if (this.boxes[i].type === data.type || this.lineIndex - i > 1) {
+        //         this.boxes[i].close();
+        //     }
+        // }
+        for (let box of this.boxes)
+            if (!box.closed) box.close();
         if (data.type === "PLAY") {
             this.game.playSound(data.line);
             this.next();

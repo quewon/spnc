@@ -285,6 +285,9 @@ return {
             if (this.currentScene)
                 this.scenes[this.currentScene].update(delta);
         }
+        if (editor && editor.selectedObject && this.mouse.clicked && !editor.selectedObject.hovered()) {
+            deselectObject();
+        }
         
         this.previousTime = now;
         this.mouse.clicked = false;
@@ -462,7 +465,6 @@ class GameObject {
         var mouse = this.scene.game.mouse;
         var hovered = this.scene.hoveredObject === this;
         if (ENV === "editor" && editor) {
-            var selected = editor.selectedObject === this;
             if (hovered) {
                 this.scene.game.canvas.classList.add("grab");
             }
@@ -471,9 +473,6 @@ class GameObject {
             }
             if (hovered && mouse.clicked) {
                 selectObject(this);
-            }
-            if (selected && !hovered && mouse.clicked) {
-                deselectObject();
             }
         } else {
             if (hovered && mouse.clicked) {
