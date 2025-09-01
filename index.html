@@ -328,7 +328,7 @@
         }
 
         document.addEventListener("keydown", e => {
-            if (e.key === "Tab") {
+            if (e.key === "Tab" && e.key.tagName !== "input") {
                 switchMode();
                 _modebutton.focus();
                 e.preventDefault();
