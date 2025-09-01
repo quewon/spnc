@@ -500,6 +500,12 @@ class GameObject {
 
     click() {
         if (this.dialogue.lines.length > 0) {
+            if (editor) {
+                this.dialogue = new Dialogue({
+                    text: this.script,
+                    game: this.scene.game
+                });
+            }
             this.scene.game.dialogue = this.dialogue;
             this.scene.hoveredObject = null;
             this.dialogue.play();

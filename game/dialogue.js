@@ -15,7 +15,6 @@ class Dialogue {
 
             let type = "default";
             let split = line.split(':');
-            console.log(split[0]);
             if (
                 split.length > 1 && 
                 (this.game.dialogueTypes[split[0]] || this.game.specialDialogueIds.includes(split[0]))
