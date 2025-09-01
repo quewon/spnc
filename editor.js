@@ -271,6 +271,51 @@ function saveGame() {
 
 // object handling
 
+game.canvas.addEventListener("wheel", e => {
+    var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;
+    if (object) {
+        let os = object.sprite.scale;
+        object.sprite.scale += e.deltaY / 300;
+        if (object.sprite.scale < .1) object.sprite.scale = .1;
+        let offset;
+        if (object === editor.grabbedObject) {
+            editor.grabOffset = [
+                editor.grabOffset[0] * (object.sprite.scale / os),
+                editor.grabOffset[1] * (object.sprite.scale / os)
+            ];
+            offset = editor.grabOffset;
+        } else {
+            if (!editor.scrollOffset) {
+                editor.scrollOffset = [
+                    object.position[0] - game.mouse.position[0],
+                    object.position[1] - game.mouse.position[1]
+                ]
+            }
+            editor.scrollOffset = [
+                editor.scrollOffset[0] * (object.sprite.scale / os),
+                editor.scrollOffset[1] * (object.sprite.scale / os)
+            ];
+            offset = editor.scrollOffset;
+        }
+        object.position = [
+            game.mouse.position[0] + offset[0],
+            game.mouse.position[1] + offset[1]
+        ]
+    }
+    e.preventDefault();
+})
+
+document.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    if (game.scenes[game.currentScene].hoveredObject) {
+        let object = game.scenes[game.currentScene].hoveredObject;
+        let scene = game.scenes[game.currentScene];
+        scene.removeObject(object);
+        scene.objects.unshift(object);
+        object.scene = scene;
+    }
+})
+
 document.body.addEventListener("mousemove", () => {
     if (editor.grabbedObject) {
         editor.grabbedObject.position = [
