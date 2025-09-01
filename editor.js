@@ -227,6 +227,8 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
+    for (let sound in game.sounds)
+        game.sounds[sound].stop();
     const promptvalue = prompt("what will you name this game?", "untitled");
     if (promptvalue === null || promptvalue.trim() === "")
         return;
@@ -312,6 +314,8 @@ function loadGame(file) {
 }
 
 function saveGame() {
+    for (let sound in game.sounds)
+        game.sounds[sound].stop();
     const promptvalue = prompt("what will you name this file?", "untitled");
     if (promptvalue === null || promptvalue.trim() === "")
         return;
