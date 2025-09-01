@@ -630,7 +630,7 @@ function updateDialogueTypes() {
                     input.appendChild(option);
                 }
                 const value = game.dialogueTypes[id][property] || game.dialogueTypes.default[property];
-                if (!game.sounds[value]) {
+                if (value !== "(none)" && !game.sounds[value]) {
                     let option = document.createElement("option");
                     option.textContent = value;
                     option.value = value;
@@ -691,8 +691,11 @@ function updateDialogueTypes() {
                 }
                 if (this.dataset.id === "default") {
                     for (let nondefault of document.querySelectorAll("[data-property]")) {
-                        if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property)
+                        if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property) {
                             nondefault.placeholder = this.value;
+                            nondefault.value = this.value;
+                            nondefault.classList.add("default");
+                        }
                     }
                 } else {
                     if (game.dialogueTypes[this.dataset.id][this.dataset.property] === undefined) {
