@@ -562,6 +562,7 @@ function updateSounds() {
     for (let sound in game.sounds) {
         var li = document.createElement("li");
         li.appendChild(createSoundElement(sound, () => {
+            game.stopSound(sound);
             delete game.sounds[sound];
             updateSounds();
             for (let type in game.dialogueTypes) {
