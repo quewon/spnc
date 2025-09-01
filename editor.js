@@ -285,6 +285,7 @@ function loadGame(file) {
         game.destroy();
         game = new Game(data);
         clearAssetFolder();
+        _folderpickerbutton.focus();
         updateScenes();
         updateSounds();
     })

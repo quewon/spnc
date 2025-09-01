@@ -141,6 +141,16 @@ class AudioSprite {
     stop() {
         if (this.source)
             this.source.stop();
+        if (this.silence)
+            this.silence.stop();
+        this.playSilence();
+    }
+
+    playSilence() {
+        this.silence = audioContext.createBufferSource();
+        this.silence.buffer = audioContext.createBuffer(1, audioContext.sampleRate * .1, audioContext.sampleRate);
+        this.silence.connect(audioDestination);
+        this.silence.start();
     }
 
     generateData() {
