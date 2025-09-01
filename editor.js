@@ -1,7 +1,6 @@
 var ENV = "editor";
 
 var editor = {
-    // savedAssetDirectory: null,
     supportedImageFormats: ["jpg", "jpeg", "png", "gif"],
     supportedAudioFormats: ["mp3", "wav", "ogg"],
     grabbedObject: null,

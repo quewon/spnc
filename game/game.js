@@ -463,7 +463,7 @@ class GameObject {
     click() {
         if (this.dialogue.lines.length > 0) {
             this.scene.game.dialogue = this.dialogue;
-            this.scene.game.mouseup({ button: 0 });
+            this.scene.game.hoveredObject = null;
             this.dialogue.play();
         }
     }
