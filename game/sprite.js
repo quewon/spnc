@@ -1,11 +1,12 @@
 const fakeCanvas = document.createElement("canvas");
 const fakeContext = fakeCanvas.getContext("2d", { willReadFrequently: true });
+fakeCanvas.width = 1;
+fakeCanvas.height = 1;
 
 class Sprite {
     loaded = false;
     src;
     image;
-    imagedata;
     width = 0;
     height = 0;
     scale = 1;
@@ -25,21 +26,7 @@ class Sprite {
             this.height = this.image.naturalHeight;
             if (o.onload)
                 o.onload();
-            if (o.imagedata) {
-                this.imagedata = o.imagedata;
-                this.loaded = true;
-            }
-            if (editor) {
-                while (ENV !== "editor" || editor?.grabbedObject || editor?.scrollOffset || editor?.generatingImages) {
-                    await new Promise(resolve => {
-                        setTimeout(() => { resolve() }, 100);
-                    })
-                }
-            }
-            if (!o.imagedata) {
-                this.imagedata = this.generateImagedata(this.image);
-                this.loaded = true;
-            }
+            this.loaded = true;
         }
     }
 
@@ -61,23 +48,15 @@ class Sprite {
         }
     }
 
-    generateImagedata(image) {
-        let canvas = fakeCanvas;
-        let context = fakeContext;
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0);
-        return context.getImageData(0, 0, canvas.width, canvas.height).data;
-    }
-
     isTransparent(x, y) {
         if (!this.loaded) {
             if (this.width && this.height)
-                return x <= this.width && y <= this.height;
+                return x < 0 || x > this.width || y < 0 || y > this.height;
             return true;
         }
-        return this.imagedata[Math.floor(y) * (this.width * 4) + Math.floor(x) * 4 + 3];
+        fakeContext.clearRect(0, 0, 1, 1);
+        fakeContext.drawImage(this.image, -Math.floor(x), -Math.floor(y));
+        return fakeContext.getImageData(0, 0, 1, 1).data[3] < 255;
     }
 
     generateData() {

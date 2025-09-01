@@ -1,7 +1,6 @@
 var ENV = "editor";
 
 var editor = {
-    generatingImages: false,
     savedAssetDirectory: null,
     supportedImageFormats: ["jpg", "jpeg", "png", "gif"],
     supportedAudioFormats: ["mp3", "wav", "ogg"],
@@ -176,15 +175,10 @@ async function createImageFileElement(parentElement, data, parent) {
     const file = data.file || await data.entry.getFile();
     const url = data.url || URL.createObjectURL(file);
 
-    editor.generatingImages = true;
     const sprite = new Sprite({
         src: data.entry.name,
         objectURL: url,
-        onload: function() {
-            this.classList.add("loaded");
-            if (!document.querySelector(".file:not(.loaded)"))
-                editor.generatingImages = false;
-        }.bind(el)
+        onload: function() { this.classList.add("loaded") }.bind(el)
     });
     el.addEventListener("mousedown", () => {
         if (el.classList.contains("loaded")) {
@@ -194,8 +188,7 @@ async function createImageFileElement(parentElement, data, parent) {
                 scene,
                 sprite: {
                     src: filepath,
-                    objectURL: url,
-                    imagedata: sprite.imagedata
+                    objectURL: url
                 },
                 position: [
                     game.mouse.position[0] - sprite.width/2,
@@ -348,7 +341,7 @@ function deselectObject() {
 function setSceneBackground() {
     var object = editor.grabbedObject;
     if (object) {
-        game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
+        game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _scenebg.style.background = `url(${object.sprite.image.src})`;
     }
 }
@@ -356,7 +349,7 @@ function setSceneBackground() {
 function setCursorDefault() {
     var object = editor.grabbedObject;
     if (object) {
-        game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
+        game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _cursordefault.style.background = `url(${object.sprite.image.src})`;
     }
 }
@@ -364,7 +357,7 @@ function setCursorDefault() {
 function setCursorDown() {
     var object = editor.grabbedObject;
     if (object) {
-        game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src, imagedata: object.sprite.imagedata });
+        game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _cursordown.style.background = `url(${object.sprite.image.src})`;
     }
 }

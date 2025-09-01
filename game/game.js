@@ -404,7 +404,7 @@ class GameObject {
         if (
             mouse[0] >= this.position[0] && mouse[0] <= this.position[0] + this.sprite.width * this.sprite.scale &&
             mouse[1] >= this.position[1] && mouse[1] <= this.position[1] + this.sprite.height * this.sprite.scale &&
-            this.sprite.isTransparent((mouse[0] - this.position[0]) / this.sprite.scale, (mouse[1] - this.position[1]) / this.sprite.scale)
+            !this.sprite.isTransparent((mouse[0] - this.position[0]) / this.sprite.scale, (mouse[1] - this.position[1]) / this.sprite.scale)
         ) {
             return true;
         }
