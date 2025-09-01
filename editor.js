@@ -536,10 +536,6 @@ function updateSounds() {
             game.stopSound(sound);
             delete game.sounds[sound];
             updateSounds();
-            for (let type in game.dialogueTypes) {
-                if (game.dialogueTypes[type].sound === sound)
-                    game.dialogueTypes[type].sound = "(none)";
-            }
         }));
         _soundslist.appendChild(li);
     }
@@ -594,7 +590,11 @@ function updateDialogueTypes() {
         typeElement.appendChild(propertyList);
         for (let property of Object.keys(game.dialogueTypes.default)) {
             var propertyElement = document.createElement("li");
-            propertyElement.innerHTML = property + "<br>";
+            propertyElement.textContent = property;
+            var flex = document.createElement("div");
+            flex.className = "flex";
+            propertyElement.appendChild(flex);
+
             var input;
             var originalType = typeof game.dialogueTypes.default[property];
             if (property === "sound") {
@@ -609,7 +609,15 @@ function updateDialogueTypes() {
                     option.value = sound;
                     input.appendChild(option);
                 }
-                input.value = game.dialogueTypes[id][property] || game.dialogueTypes.default[property];
+                const value = game.dialogueTypes[id][property] || game.dialogueTypes.default[property];
+                if (!game.sounds[value]) {
+                    let option = document.createElement("option");
+                    option.textContent = value;
+                    option.value = value;
+                    option.disabled = true;
+                    input.appendChild(option);
+                }
+                input.value = value;
             } else {
                 if (originalType === "string") {
                     input = document.createElement("textarea");
@@ -620,49 +628,64 @@ function updateDialogueTypes() {
                     input.type = "number";
                 }
             }
-            propertyElement.appendChild(input);
+            flex.appendChild(input);
 
             if (game.dialogueTypes[id][property])
                 input.value = game.dialogueTypes[id][property];
             if (id !== "default") {
                 input.placeholder = game.dialogueTypes.default[property];
-                if (!game.dialogueTypes[id][property])
+                let defaultbutton = document.createElement("button");
+                defaultbutton.textContent = "↻";
+                defaultbutton.title = "reset and bind to default";
+                setLabel(defaultbutton);
+                defaultbutton.onclick = function() {
+                    delete game.dialogueTypes[this.dataset.id][this.dataset.property];
+                    if (this.dataset.property === "sound") {
+                        this.value = game.dialogueTypes.default.sound;
+                        if (!game.sounds[this.value])
+                            updateDialogueTypes();
+                    } else {
+                        this.value = null;
+                    }
+                    this.classList.add("default");
+                    this.nextElementSibling.disabled = true;
+                }.bind(input);
+                if (!game.dialogueTypes[id][property]) {
                     input.classList.add("default");
-                if (property === "sound") {
-                    let defaultbutton = document.createElement("button");
-                    defaultbutton.style.marginLeft = "5px";
-                    defaultbutton.textContent = "bind to default";
-                    defaultbutton.onclick = function() {
-                        game.dialogueTypes[this.dataset.id][this.dataset.property] = null;
-                        this.value = game.dialogueTypes.default[this.dataset.property];
-                        this.classList.add("default");
-                        this.nextElementSibling.disabled = true;
-                    }.bind(input);
-                    if (!game.dialogueTypes[id][property])
-                        defaultbutton.disabled = true;
-                    propertyElement.appendChild(defaultbutton);
+                    defaultbutton.disabled = true;
                 }
+                flex.appendChild(defaultbutton);
             }
             input.dataset.id = id;
             input.dataset.property = property;
             input.addEventListener("change", function() {
-                if (this.type === "number")
-                    game.dialogueTypes[this.dataset.id][this.dataset.property] = parseFloat(this.value || 0);
-                else
-                    game.dialogueTypes[this.dataset.id][this.dataset.property] = this.value.trim() === "" ? null : this.value.trim();
-                this.value = game.dialogueTypes[this.dataset.id][this.dataset.property];
+                if (this.value.trim() === "" && this.dataset.id !== "default") {
+                    delete game.dialogueTypes[this.dataset.id][this.dataset.property];
+                    this.value = null;
+                } else {
+                    if (this.type === "number")
+                        game.dialogueTypes[this.dataset.id][this.dataset.property] = parseFloat(this.value || 0);
+                    else
+                        game.dialogueTypes[this.dataset.id][this.dataset.property] = this.value.trim();
+                    this.value = game.dialogueTypes[this.dataset.id][this.dataset.property];
+                }
                 if (this.dataset.id === "default") {
                     for (let nondefault of document.querySelectorAll("[data-property]")) {
-                        if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property) {
-                            if (nondefault.placeholder)
-                                nondefault.placeholder = game.dialogueTypes.default[this.dataset.property];
-                        }
+                        if (nondefault.dataset.id !== "default" && nondefault.dataset.property === this.dataset.property)
+                            nondefault.placeholder = this.value;
                     }
                 } else {
-                    if (game.dialogueTypes[this.dataset.id][this.dataset.property]) {
+                    if (game.dialogueTypes[this.dataset.id][this.dataset.property] === undefined) {
+                        this.nextElementSibling.disabled = true;
+                        this.classList.add("default");
+                    } else {
+                        this.nextElementSibling.disabled = false;
                         this.classList.remove("default");
-                        if (this.dataset.property === "sound")
-                            this.nextElementSibling.disabled = false;
+                    }
+                }
+                if (this.dataset.property === "sound") {
+                    if (game.sounds[this.value] && this.querySelector("option[disabled]")) {
+                        this.querySelector("option[disabled]").remove();
                     }
                 }
             })
