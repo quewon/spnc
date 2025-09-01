@@ -29,10 +29,12 @@ class Sprite {
                 this.imagedata = o.imagedata;
                 this.loaded = true;
             }
-            while (ENV !== "editor" || editor?.grabbedObject || editor?.scrollOffset || editor?.generatingImages) {
-                await new Promise(resolve => {
-                    setTimeout(() => { resolve() }, 100);
-                })
+            if (editor) {
+                while (ENV !== "editor" || editor?.grabbedObject || editor?.scrollOffset || editor?.generatingImages) {
+                    await new Promise(resolve => {
+                        setTimeout(() => { resolve() }, 100);
+                    })
+                }
             }
             if (!o.imagedata) {
                 this.imagedata = this.generateImagedata(this.image);
