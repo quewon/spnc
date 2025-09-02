@@ -227,11 +227,33 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
-    const promptvalue = await prompt("what will you name this game?", game.name);
-    if (promptvalue === null)
+    while (_exportscenes.lastElementChild)
+        _exportscenes.lastElementChild.remove();
+    for (let scene in game.scenes) {
+        let option = document.createElement("option");
+        option.textContent = scene;
+        option.value = scene;
+        _exportscenes.appendChild(option);
+    }
+    _exportcanceled.checked = true;
+    _exporttitle.value = "";
+    _exporttitle.placeholder = game.name;
+    _exportscenes.value = game.currentScene;
+    _export.showModal();
+    await new Promise(resolve => {
+        _export.onclose = () => {
+            if (!_exportcanceled.checked) {
+                if (_exporttitle.value.trim() !== "") {
+                    game.name = _exporttitle.value.trim();
+                    document.title = game.name;
+                }
+                game.setScene(_exportscenes.value);
+            }
+            resolve();
+        }
+    })
+    if (_exportcanceled.checked)
         return;
-    game.name = promptvalue.trim();
-    document.title = game.name;
 
     var zip = new JSZip();
     

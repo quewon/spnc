@@ -321,6 +321,22 @@
         </p>
     </dialog>
 
+    <dialog id="_export">
+        <p>game title:</p>
+        <p>
+            <input autofocus id="_exporttitle" type="text" onkeydown="if(event.key==='Enter'){_exportcanceled.checked=false;this.parentElement.parentElement.close()}">
+            <input id="_exportcanceled" type="checkbox" class="hidden" checked />
+        </p>
+        <p>starting scene:</p>
+        <p>
+            <select id="_exportscenes"></select>
+        </p>
+        <p>
+            <button type="button" onclick="_exportcanceled.checked=true;this.parentElement.parentElement.close()">cancel</button>
+            <button type="button" onclick="_exportcanceled.checked=false;this.parentElement.parentElement.close()">export</button>
+        </p>
+    </dialog>
+
     <dialog id="_prompt">
         <p id="_promptprompt"></p>
         <p>
