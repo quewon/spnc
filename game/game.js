@@ -13,8 +13,8 @@ class Game {
     scenes;
     currentScene;
 
-    static defaultCursorDefault = { src: "_res/cursor_open.png" };
-    static defaultCursorDown = { src: "_res/cursor_closed.png" };
+    static defaultCursorDefault = { src: "_res/cursor_default.png" };
+    static defaultCursorDown = { src: "_res/cursor_default.png" };
     cursorDefault;
     cursorDown;
 
