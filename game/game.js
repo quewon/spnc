@@ -483,25 +483,16 @@ class GameObject {
     draw(context) {
         var mouse = this.scene.game.mouse;
         var hovered = this.scene.hoveredObject === this;
-
         var x = this.position[0];
         var y = this.position[1];
-        var w = this.sprite.width * this.sprite.scale;
-        var h = this.sprite.height * this.sprite.scale;
-
-        if (hovered && this.dialogue.lines.length > 0) {
-            context.fillStyle = "white";
-            context.fillRect(x - 1, y - 1, w + 2, h + 2);
-        }
         if (
             ENV !== "editor" && hovered && this.dialogue.lines.length > 0 && mouse.down && !mouse.cancelClick || 
             ENV === "editor" && editor?.selectedObject === this
-        ) {
-            context.fillStyle = "greenyellow";
-            context.fillRect(x - 3, y - 3, w + 6, h + 6);
-        }
-
-        this.sprite.draw(context, this.position[0], this.position[1]);
+        )
+            this.sprite.drawOutline(context, "active", x, y)
+        else if (hovered && this.dialogue.lines.length > 0)
+            this.sprite.drawOutline(context, "hover", x, y);
+        this.sprite.draw(context, x, y);
     }
 
     update(delta) {

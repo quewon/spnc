@@ -35,14 +35,36 @@ class Sprite {
         }
     }
 
-    draw(context, x, y, w, h) {
-        context.save();
-        context.translate(x, y);
-        context.scale(this.scale, this.scale);
-        if (this.loaded)
-            context.drawImage(this.image, 0, 0, w || this.width, h || this.height);
-        context.restore();
+    createOutlineImage(image, color, offset) {
+        var canvas = document.createElement("canvas");
+        canvas.width = (image.naturalWidth * this.scale) + offset * 2;
+        canvas.height = (image.naturalHeight * this.scale) + offset * 2;
+        var context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        for (let x=-offset; x<=offset; x++) {
+            for (let y=-offset; y<=offset; y++) {
+                context.save();
+                context.translate(offset + x, offset + y);
+                context.scale(this.scale, this.scale);
+                context.drawImage(image, 0, 0);
+                context.restore();
+            }
+        }
+        context.globalCompositeOperation = "source-in";
+        context.fillStyle = color;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        return canvas;
+    }
 
+    drawOutline(context, name, x, y) {
+        if (this.loaded) {
+            var offset = 2;
+            var outline = this.createOutlineImage(this.image, name === "active" ? "greenyellow" : "white", offset);
+            context.drawImage(outline, x - offset, y - offset, outline.width, outline.height);
+        }
+    }
+
+    draw(context, x, y) {
         if (!this.loaded && this.width && this.height) {
             context.strokeStyle = "white";
             context.lineWidth = 1;
@@ -50,7 +72,14 @@ class Sprite {
             context.fillStyle = "white";
             context.font = "20px sans-serif";
             context.fillText(this.src, x + 5, y + (this.height * this.scale) - 5);
+            return;
         }
+        context.save();
+        context.translate(x, y);
+        context.scale(this.scale, this.scale);
+        if (this.loaded)
+            context.drawImage(this.image, 0, 0, this.width, this.height);
+        context.restore();
     }
 
     isTransparent(x, y) {
