@@ -504,6 +504,9 @@ function renameScene() {
         _scenename.value = game.currentScene;
         return;
     }
+    _scenename.value = id;
+    if (id === game.currentScene)
+        return;
     if (game.scenes[id]) {
         alert(`a scene called "${id}" already exists!`);
         return;

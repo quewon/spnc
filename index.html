@@ -254,9 +254,11 @@
     </aside>
     <aside id="_gamemenu">
         <h1>SCENE</h1>
-        <input id="_scenename" type="text" title="scene name" onchange="renameScene()" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
+        <div class="flex">
+            <input id="_scenename" type="text" title="scene name" onchange="renameScene()" class="expand">
+            <button type="button" class="delete" onclick="deleteScene()">delete</button>
+        </div>
         <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
-        <button type="button" class="delete" onclick="deleteScene()">delete scene</button>
         <div class="flex">
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
