@@ -226,6 +226,8 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
+    var error;
+
     while (_exportscenes.lastElementChild)
         _exportscenes.lastElementChild.remove();
     for (let scene in game.scenes) {
@@ -262,7 +264,7 @@ async function exportGame() {
         "_lib/typeset/src/formatter.js",
         "_lib/typeset/src/linebreak.js",
         "_lib/typeset/src/linked-list.js",
-        "_lib/typeset/src/LICENSE",
+        "_lib/typeset/LICENSE",
     ];
     var objecturl = [];
     for (let sprite of allSprites()) {
@@ -274,7 +276,7 @@ async function exportGame() {
     if (res.length > 0) {
         await Promise.all(
             res.map(async path => {
-                const blob = await fetch(path)
+                const blob = await fetch(path, {cache: "force-cache"})
                 .then(x => x.blob());
                 return { path, blob }
             })
@@ -282,20 +284,32 @@ async function exportGame() {
             for (let data of dataArray) {
                 zip.file(data.path, data.blob);
             }
+        }).catch(() => {
+            error = 1;
+            console.error("_res and _lib fetch unsuccessful.");
         })
     }
     if (objecturl.length > 0) {
-        for (let sprite of objecturl)
-            zip.file(sprite.src, await fetch(sprite.buffer ? sprite.url : sprite.image.src).then(res => res.blob()));
+        for (let sprite of objecturl) {
+            zip.file(
+                sprite.src, 
+                await fetch(sprite.buffer ? sprite.url : sprite.image.src, {cache: "force-cache"})
+                    .then(res => res.blob())
+                    .catch(() => {
+                        error = 1;
+                        console.error("asset fetch unsuccessful.");
+                    })
+            );
+        }
     }
     
     var html;
     await Promise.all([
-        fetch("template.html").then(x => x.text()),
-        fetch("game/util.js").then(x => x.text()),
-        fetch("game/sprite.js").then(x => x.text()),
-        fetch("game/dialogue.js").then(x => x.text()),
-        fetch("game/game.js").then(x => x.text()),
+        fetch("template.html", {cache: "force-cache"}).then(x => x.text()),
+        fetch("game/util.js", {cache: "force-cache"}).then(x => x.text()),
+        fetch("game/sprite.js", {cache: "force-cache"}).then(x => x.text()),
+        fetch("game/dialogue.js", {cache: "force-cache"}).then(x => x.text()),
+        fetch("game/game.js", {cache: "force-cache"}).then(x => x.text()),
     ]).then(([template, util, sprite, dialogue, gamejs]) => {
         html = template
                .replace("GAME_TITLE_", game.name)
@@ -304,7 +318,15 @@ async function exportGame() {
                .replace("GAME_DIALOGUE_JS_", dialogue)
                .replace("GAME_GAME_JS_", gamejs)
                .replace("GAME_DATA_", JSON.stringify(game.generateData()))
-    });
+    }).catch(() => {
+        error = 1;
+        console.error("template & game scripts fetch unsuccessful.");
+    })
+
+    if (error) {
+        alert("network connection lost :( failed to download necessary libraries.");
+        return;
+    }
 
     zip.file("index.html", html);
     zip.generateAsync({ type: "blob" })
