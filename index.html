@@ -56,6 +56,12 @@
             font-size: 13px;
             font-family: "Atkinson Hyperlegible Mono", monospace;
         }
+        h1 {
+            font-size: inherit;
+            font-weight: bold;
+            margin: 0;
+            color: gray;
+        }
         input, button, select, textarea {
             font-size: inherit;
             font-family: inherit;
@@ -64,7 +70,7 @@
             background: transparent;
             border: 1px solid gray;
         }
-        select.default {
+        .default {
             color: gray;
             font-style: italic;
         }
@@ -83,10 +89,14 @@
             background: greenyellow;
             color: black;
         }
-        button[disabled] {
+        button {
+            cursor: pointer;
+        }
+        button:disabled {
             background: transparent;
             color: gray;
             font-style: italic;
+            cursor: default;
         }
         button.delete {
             color: red;
@@ -127,6 +137,7 @@
             box-sizing: border-box;
             background-repeat: no-repeat;
             background-position: center;
+            cursor: default;
         }
         .dropzone.active {
             border-style: solid;
@@ -163,7 +174,7 @@
             gap: 5px;
         }
         body.dragging, body.dragging * {
-            cursor: grabbing;
+            cursor: grabbing !important;
         }
         body.delete-object main, body.delete-object aside {
             background: red;
@@ -242,24 +253,23 @@
         <img id="_objectpreview" src="" title="selected object" alt="selected object">
     </aside>
     <aside id="_gamemenu">
-        :: SCENE
+        <h1>SCENE</h1>
         <input id="_scenename" type="text" title="scene name" onchange="renameScene()" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
         <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
         <button type="button" class="delete" onclick="deleteScene()">delete scene</button>
         <div class="flex">
-            <span>+</span>
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
         </div>
-        <br>
-        :: CURSOR
+        <br><br>
+        <h1>CURSOR</h1>
         <div class="flex">
             <div class="dropzone" id="_cursordefault" style="background-image: url(_res/cursor_open.png)" onmouseup="setCursorDefault()" title="drop default cursor image here">cursor (default)</div>
             <div class="dropzone" id="_cursordown" style="background-image: url(_res/cursor_closed.png)" onmouseup="setCursorDown()" title="drop held cursor image here">cursor (down)</div>
         </div>
+        <br><br>
         <div>
-            <br>
-            :: SFX
+            <h1>SFX</h1>
             <ul id="_soundslist"></ul>
             <div class="flex">
                 <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
@@ -267,9 +277,9 @@
                 <button type="button" onclick="addSound()" title="create sound">+</button>
             </div>
         </div>
+        <br><br>
         <div>
-            <br>
-            :: DIALOGUE TYPES
+            <h1>DIALOGUE TYPES</h1>
             <ul id="_dialoguetypes"></ul>
             <div class="flex">
                 <input type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">

@@ -491,7 +491,7 @@ function renameScene() {
 async function deleteScene() {
     game.stopSounds();
     if (
-        (game.scenes[game.currentScene].objects.length > 0 || game.scenes[game.currentScene].background) &&
+        (game.scenes[game.currentScene].hasContent()) &&
         !(await confirm(`delete the scene "${game.currentScene}"?`))
     )
         return;

@@ -349,6 +349,22 @@ return {
             cursorDown: this.cursorDown.generateData(),
         }
     }
+
+    hasContent() {
+        if (
+            this.cursorDefault.src !== "_res/cursor_open.png" ||
+            this.cursorDown.src !== "_res/cursor_closed.png"
+        )
+        return true;
+        for (let scene of this.scenes)
+            if (scene.hasContent()) return true;
+        var prototype = new Game({});
+        if (JSON.stringify(prototype.sounds) === JSON.stringify(this.sounds))
+            return true;
+        if (JSON.stringify(prototype.dialogueTypes) === JSON.stringify(this.dialogueTypes))
+            return true;
+        return false;
+    }
 }
 
 class Scene {
@@ -417,6 +433,10 @@ class Scene {
             data.objects.push(object.generateData());
         }
         return data;
+    }
+
+    hasContent() {
+        return this.objects.length > 0 || this.background;
     }
 }
 
