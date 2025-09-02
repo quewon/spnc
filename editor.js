@@ -763,7 +763,7 @@ window.addEventListener("load", () => {
     }
     window.prompt = async function(text, placeholder) {
         _promptprompt.textContent = text;
-        _promptcanceled.checked = false;
+        _promptcanceled.checked = true;
         _promptinput.value = "";
         _promptinput.placeholder = placeholder;
         setTimeout(_prompt.showModal.bind(_prompt), 1);

@@ -325,7 +325,7 @@
         <p id="_promptprompt"></p>
         <p>
             <input autofocus id="_promptinput" type="text" onkeydown="if(event.key==='Enter'){_promptcanceled.checked=false;this.parentElement.parentElement.close()}">
-            <input id="_promptcanceled" type="checkbox" class="hidden" />
+            <input id="_promptcanceled" type="checkbox" class="hidden" checked />
         </p>
         <p>
             <button type="button" onclick="_promptcanceled.checked=true;this.parentElement.parentElement.close()">cancel</button>
