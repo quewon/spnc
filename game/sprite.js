@@ -123,7 +123,7 @@ class AudioSprite {
     setSource(src, onload) {
         this.loaded = false;
         this.url = src;
-        fetch(src)
+        fetch(src, {cache: "force-cache"})
         .then(res => res.arrayBuffer())
         .then(buffer => audioContext.decodeAudioData(buffer))
         .then(buffer => {
