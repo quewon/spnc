@@ -258,7 +258,7 @@
             <input id="_scenename" type="text" title="scene name" onchange="renameScene()" class="expand">
             <button type="button" class="delete" onclick="deleteScene()">delete</button>
         </div>
-        <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="drop background image here">background image</div>
+        <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
         <div class="flex">
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
@@ -266,8 +266,8 @@
         <br><br>
         <h1>CURSOR</h1>
         <div class="flex">
-            <div class="dropzone" id="_cursordefault" style="background-image: url(_res/cursor_open.png)" onmouseup="setCursorDefault()" title="drop default cursor image here">cursor (default)</div>
-            <div class="dropzone" id="_cursordown" style="background-image: url(_res/cursor_closed.png)" onmouseup="setCursorDown()" title="drop held cursor image here">cursor (down)</div>
+            <div class="dropzone" id="_cursordefault" onmouseup="setCursorDefault()" title="">cursor (default)</div>
+            <div class="dropzone" id="_cursordown" onmouseup="setCursorDown()" title="">cursor (down)</div>
         </div>
         <br><br>
         <div>
@@ -275,7 +275,7 @@
             <ul id="_soundslist"></ul>
             <div class="flex">
                 <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
-                <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="drop sound file here">file (mp3, wav, ogg)</div>
+                <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="">file (mp3, wav, ogg)</div>
                 <button type="button" onclick="addSound()" title="create sound">+</button>
             </div>
         </div>

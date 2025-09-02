@@ -13,8 +13,10 @@ class Game {
     scenes;
     currentScene;
 
-    cursorDefault = new Sprite({ src: "_res/cursor_open.png" });
-    cursorDown = new Sprite({ src: "_res/cursor_closed.png" });
+    static defaultCursorDefault = { src: "_res/cursor_open.png" };
+    static defaultCursorDown = { src: "_res/cursor_closed.png" };
+    cursorDefault;
+    cursorDown;
 
     sounds = {
         "interact": "_res/interact.mp3",
@@ -113,7 +115,6 @@ return {
         } else {
             this.scenes = { "main": new Scene({ game: this }) };
         }
-        this.setScene(o.currentScene || "main");
 
         if (o.sounds) {
             this.sounds = {};
@@ -126,10 +127,8 @@ return {
                 src: this.sounds[sound]
             });
         }
-        if (o.cursorDefault)
-            this.cursorDefault = new Sprite(o.cursorDefault);
-        if (o.cursorDown)
-            this.cursorDown = new Sprite(o.cursorDown);
+        this.cursorDefault = new Sprite(o.cursorDefault || Game.defaultCursorDefault);
+        this.cursorDown = new Sprite(o.cursorDown || Game.defaultCursorDown);
 
         // event listeners
 
@@ -148,6 +147,7 @@ return {
 
         // 
 
+        this.setScene(o.currentScene || "main");
         this.previousTime = new Date();
         this.update();
         this.draw();
@@ -246,6 +246,7 @@ return {
             _scenename.value = this.currentScene;
             if (!this.scenes[this.currentScene].background) {
                 _scenebg.title = "drop background image here";
+                _scenebg.style.backgroundImage = `none`;
             } else {
                 _scenebg.title = this.scenes[this.currentScene].background.src;
                 _scenebg.style.backgroundImage = `url(${this.scenes[this.currentScene].background?.image.src})`;
@@ -353,22 +354,6 @@ return {
             cursorDefault: this.cursorDefault.generateData(),
             cursorDown: this.cursorDown.generateData(),
         }
-    }
-
-    hasContent() {
-        if (
-            this.cursorDefault.src !== "_res/cursor_open.png" ||
-            this.cursorDown.src !== "_res/cursor_closed.png"
-        )
-        return true;
-        for (let scene of this.scenes)
-            if (scene.hasContent()) return true;
-        var prototype = new Game({});
-        if (JSON.stringify(prototype.sounds) === JSON.stringify(this.sounds))
-            return true;
-        if (JSON.stringify(prototype.dialogueTypes) === JSON.stringify(this.dialogueTypes))
-            return true;
-        return false;
     }
 }
 

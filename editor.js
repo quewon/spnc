@@ -46,26 +46,25 @@ function clearAssetFolder() {
     }
     _cursordefault.title = "drop default cursor image here";
     _cursordown.title = "drop held cursor image here";
-    _cursordefault.style.backgroundImage = "url(_res/cursor_open.png)";
-    _cursordown.style.backgroundImage = "url(_res/cursor_closed.png)";
+    _cursordefault.style.backgroundImage = `url(${Game.defaultCursorDefault.src})`;
+    _cursordown.style.backgroundImage = `url(${Game.defaultCursorDown.src})`;
     _sfxdropzone.title = "drop sound file here";
 }
 
 function loadAssetFolder(files) {
-    clearAssetFolder();
     var structure = getFolderStructure(files);
     createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
     game.windowresize();
     _folderpicker.value = "";
-    updateScenes();
-    if (game.cursorDefault.src !== "_res/cursor_open.png") {
+    if (game.cursorDefault.src !== Game.defaultCursorDefault.src) {
         _cursordefault.title = game.cursorDefault.src;
         _cursordefault.style.backgroundImage = `url(${game.cursorDefault.image.src})`;
     }
-    if (game.cursorDown.src !== "_res/cursor_closed.png") {
+    if (game.cursorDown.src !== Game.defaultCursorDown.src) {
         _cursordown.title = game.cursorDown.src;
         _cursordown.style.backgroundImage = `url(${game.cursorDown.image.src})`;
     }
+    game.setScene(game.currentScene);
 }
 
 function getFolderStructure(files) {
@@ -323,12 +322,12 @@ function loadGame(file) {
                 sprite.stop();
         }
         game.destroy();
-        game = new Game(data);
         clearAssetFolder();
-        _folderpickerbutton.focus();
+        game = new Game(data);
+        document.title = game.name;
         updateScenes();
         updateSounds();
-        document.title = game.name;
+        _folderpickerbutton.focus();
     })
     if (file)
         reader.readAsText(file);
@@ -401,7 +400,7 @@ function setSceneBackground() {
     var object = editor.grabbedObject;
     if (object) {
         game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
-        _scenebg.style.background = `url(${object.sprite.image.src})`;
+        _scenebg.style.backgroundImage = `url(${object.sprite.image.src})`;
         _scenebg.title = object.sprite.src;
     }
 }
@@ -568,12 +567,6 @@ function updateScenes() {
         _sceneselect.appendChild(option);
     }
     _sceneselect.value = game.currentScene;
-    if (game.scenes[game.currentScene].background) {
-        _scenebg.title = game.scenes[game.currentScene].background.src;
-        _scenebg.style.backgroundImage = `url(${game.scenes[game.currentScene].background.image.src})`;
-    } else {
-        _scenebg.title = "drop background image here";
-    }
 }
 
 function updateSounds() {
@@ -816,6 +809,7 @@ window.addEventListener("load", () => {
         height: editor.gameHeight
     });
     document.title = game.name;
+    clearAssetFolder();
 
     game.canvas.addEventListener("wheel", e => {
         var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;
