@@ -52,6 +52,7 @@ function clearAssetFolder() {
 }
 
 function loadAssetFolder(files) {
+    clearAssetFolder();
     var structure = getFolderStructure(files);
     createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
     game.windowresize();
