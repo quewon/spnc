@@ -59,11 +59,11 @@ class Sprite {
         if (this.loaded) {
             var offset = 2;
             var outline = this.createOutlineImage(this.image, name === "active" ? "greenyellow" : "white", offset);
-            context.drawImage(outline, x - offset, y - offset, outline.width, outline.height);
+            context.drawImage(outline, x - offset, y - offset);
         }
     }
 
-    draw(context, x, y) {
+    draw(context, x, y, w, h) {
         if (!this.loaded && this.width && this.height) {
             context.strokeStyle = "white";
             context.lineWidth = 1;
@@ -76,7 +76,7 @@ class Sprite {
         context.translate(x, y);
         context.scale(this.scale, this.scale);
         if (this.loaded)
-            context.drawImage(this.image, 0, 0, this.width, this.height);
+            context.drawImage(this.image, 0, 0, w || this.width, h || this.height);
         context.setTransform(1,0,0,1,0,0);
     }
 
