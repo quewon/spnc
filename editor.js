@@ -346,7 +346,7 @@ async function saveGame() {
     const a = document.createElement("a");
     const url = URL.createObjectURL(file);
     a.href = url;
-    a.download = (filename === "" ? "untitled" : filename) + ".spnc";
+    a.download = filename + ".spnc";
     a.click();
     window.URL.revokeObjectURL(url);
 }
@@ -704,6 +704,12 @@ function updateDialogueTypes() {
             }
             input.dataset.id = id;
             input.dataset.property = property;
+            input.addEventListener("input", function() {
+                if (this.value === "")
+                    this.classList.add("default");
+                else
+                    this.classList.remove("default");
+            })
             input.addEventListener("change", function() {
                 if (this.value.trim() === "" && this.dataset.id !== "default") {
                     delete game.dialogueTypes[this.dataset.id][this.dataset.property];
