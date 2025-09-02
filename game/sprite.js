@@ -129,7 +129,6 @@ class AudioSprite {
         if (outputAudio.dataset.started !== "true") {
             outputAudio.play();
             outputAudio.dataset.started = true;
-            console.log("playing");
         }
         this.stop();
         this.source = audioContext.createBufferSource();

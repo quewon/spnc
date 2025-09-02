@@ -96,6 +96,9 @@ return {
         this.canvas = o.canvas || document.querySelector("canvas");
         this.context = this.canvas.getContext("2d");
         this.setSize(o.width, o.height);
+        
+        if (o.dialogueTypes)
+            this.dialogueTypes = o.dialogueTypes;
 
         if (o.scenes) {
             this.scenes = {};
@@ -108,8 +111,6 @@ return {
         }
         this.setScene(o.currentScene || "main");
 
-        if (o.dialogueTypes)
-            this.dialogueTypes = o.dialogueTypes;
         if (o.sounds) {
             this.sounds = {};
             for (let sound in o.sounds) {
