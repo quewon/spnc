@@ -227,10 +227,11 @@ function createImageFileElement(parentElement, filename, parent) {
 // save & load game
 
 async function exportGame() {
-    const promptvalue = await prompt("what will you name this game?", "untitled");
+    const promptvalue = await prompt("what will you name this game?", game.name);
     if (promptvalue === null)
         return;
-    const gametitle = promptvalue.trim();
+    game.name = promptvalue.trim();
+    document.title = game.name;
 
     var zip = new JSZip();
     
@@ -276,7 +277,7 @@ async function exportGame() {
         fetch("game/game.js").then(x => x.text()),
     ]).then(([template, util, sprite, dialogue, gamejs]) => {
         html = template
-               .replace("GAME_TITLE_", gametitle)
+               .replace("GAME_TITLE_", game.name)
                .replace("GAME_UTIL_JS_", util)
                .replace("GAME_SPRITE_JS_", sprite)
                .replace("GAME_DIALOGUE_JS_", dialogue)
@@ -287,7 +288,7 @@ async function exportGame() {
     zip.file("index.html", html);
     zip.generateAsync({ type: "blob" })
     .then(function(content) {
-        saveAs(content, gametitle + ".zip");
+        saveAs(content, game.name + ".zip");
     });
 }
 
@@ -305,6 +306,7 @@ function loadGame(file) {
         _folderpickerbutton.focus();
         updateScenes();
         updateSounds();
+        document.title = game.name;
     })
     if (file)
         reader.readAsText(file);
@@ -312,10 +314,12 @@ function loadGame(file) {
 }
 
 async function saveGame() {
-    const promptvalue = await prompt("what will you name this file?", "untitled");
+    const promptvalue = await prompt("what will you name this file?", game.name);
     if (promptvalue === null)
         return;
     const filename = promptvalue.trim();
+    game.name = filename;
+    document.title = game.name;
     const file = new Blob([JSON.stringify(game.generateData())], { type: "text/plain" });
     const a = document.createElement("a");
     const url = URL.createObjectURL(file);
@@ -780,6 +784,7 @@ window.addEventListener("load", () => {
         width: editor.gameWidth,
         height: editor.gameHeight
     });
+    document.title = game.name;
 
     game.canvas.addEventListener("wheel", e => {
         var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;

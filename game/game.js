@@ -1,4 +1,5 @@
 class Game {
+    name = "untitled";
     canvas;
     cachedCanvasRect;
     context;
@@ -96,6 +97,9 @@ return {
         this.canvas = o.canvas || document.querySelector("canvas");
         this.context = this.canvas.getContext("2d");
         this.setSize(o.width, o.height);
+
+        if (o.name)
+            this.name = o.name;
         
         if (o.dialogueTypes)
             this.dialogueTypes = o.dialogueTypes;
@@ -339,6 +343,7 @@ return {
 
     generateData() {
         return {
+            name: this.name,
             width: this.canvas.width,
             height: this.canvas.height,
             currentScene: this.currentScene,
