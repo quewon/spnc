@@ -40,14 +40,13 @@ class Sprite {
         canvas.width = (image.naturalWidth * this.scale) + offset * 2;
         canvas.height = (image.naturalHeight * this.scale) + offset * 2;
         var context = canvas.getContext("2d");
-        context.clearRect(0, 0, canvas.width, canvas.height);
         for (let x=-offset; x<=offset; x++) {
             for (let y=-offset; y<=offset; y++) {
-                context.save();
+                if (x === 0 && y === 0) continue;
                 context.translate(offset + x, offset + y);
                 context.scale(this.scale, this.scale);
                 context.drawImage(image, 0, 0);
-                context.restore();
+                context.setTransform(1,0,0,1,0,0);
             }
         }
         context.globalCompositeOperation = "source-in";
@@ -74,12 +73,11 @@ class Sprite {
             context.fillText(this.src, x + 5, y + (this.height * this.scale) - 5);
             return;
         }
-        context.save();
         context.translate(x, y);
         context.scale(this.scale, this.scale);
         if (this.loaded)
             context.drawImage(this.image, 0, 0, this.width, this.height);
-        context.restore();
+        context.setTransform(1,0,0,1,0,0);
     }
 
     isTransparent(x, y) {
