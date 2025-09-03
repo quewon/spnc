@@ -235,7 +235,7 @@ return {
             alert(`the scene "${sceneName}" does not exist.`);
             return;
         }
-        if (ENV !== "editor" && sceneName !== this.currentScene) {
+        if (ENV !== "editor" && this.currentScene && sceneName !== this.currentScene) {
             var exitDialogue = new Dialogue({
                 game: this, 
                 text: this.scenes[this.currentScene].exitScript
