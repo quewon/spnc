@@ -401,7 +401,7 @@ function grabObject(object) {
 function selectObject(object) {
     editor.selectedObject = object;
     _objectpreview.src = object.sprite.image.src;
-    _objectname.textContent = object.sprite.src;
+    _objectpreview.title = object.sprite.src;
     _objectscript.value = object.script;
     _objectscript.oninput = () => {
         object.scriptChanged = true;
