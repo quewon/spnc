@@ -566,6 +566,14 @@ async function deleteScene() {
     updateScenes();
 }
 
+function duplicateScene() {
+    var duplicate = new Scene(game.scenes[game.currentScene]);
+    var name = game.currentScene + " copy";
+    game.scenes[name] = duplicate;
+    game.setScene(name);
+    updateScenes();
+}
+
 // ui
 
 function setLabel(el) {
@@ -981,7 +989,6 @@ window.addEventListener("load", () => {
 
     document.addEventListener("keydown", e => {
         editor.shiftPressed = e.key === "Shift";
-        console.log(editor.shiftPressed, e.key);
     })
 
     document.addEventListener("keyup", () => {
