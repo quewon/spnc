@@ -23,7 +23,7 @@ class Game {
         "dialogue": "_preset/dialogue.mp3"
     };
 
-    specialDialogueIds = ["PLAY", "STOP", "GOTO"];
+    specialDialogueIds = ["PLAY", "STOP", "GOTO", "WAIT"];
     dialogueTypes = {
 //         default: {
 //             textPadding: 5,
@@ -502,10 +502,9 @@ class GameObject {
         var x = this.position[0];
         var y = this.position[1];
         if (
-            window.editor &&
             (
-                ENV !== "editor" && hovered && this.dialogue.lines.length > 0 && mouse.down && !mouse.cancelClick || 
-                ENV === "editor" && editor.selectedObject === this
+                ENV !== "editor" && !this.scene.game.dialogue && hovered && this.dialogue.lines.length > 0 && mouse.down && !mouse.cancelClick || 
+                ENV === "editor" && window.editor && editor.selectedObject === this
             )
         )
             this.sprite.drawOutline(context, "active", x, y)

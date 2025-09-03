@@ -221,6 +221,11 @@
             user-select: none;
             -webkit-user-select: none;
         }
+        em {
+            background: white;
+            color: black;
+            padding: 0 5px;
+        }
     </style>
     <script type="text/javascript" src="_lib/typeset/src/linked-list.js" defer></script>
     <script type="text/javascript" src="_lib/typeset/src/linebreak.js" defer></script>
@@ -334,31 +339,36 @@
         <p>
             this is a tool for making mechanically simple point n click games. my intention is that you'd collect a bunch of assets (sounds, images), dump them into a folder, and load that folder in to collage together a little game.
         </p>
+        <div class="flex" style="gap: 1em; margin: -1em 0;">
+            <div style="width: 70%">
+                <p>
+                    a basic scripting system:
+                    <ul>
+                        <li><em>PLAY: [sound]</em> to play a sound</li>
+                        <li><em>STOP: [sound]</em> to stop a sound</li>
+                        <li><em>WAIT: [n]</em> to wait <i>n</i> seconds</li>
+                        <li><em>GOTO: [scene]</em> to change scenes</li>
+                        <li><em>[TYPE]:</em> to display text of a specific dialogue type</li>
+                        <li>otherwise, display default-type dialogue</li>
+                    </ul>
+                </p>
+            </div>
+            <div>
+                <p>
+                    misc features:
+                    <ul>
+                        <li><em>//</em> to comment in scripts</li>
+                        <li><em>TAB</em> to switch between Editor Mode and Game Mode</li>
+                        <li><em>F</em> to toggle fullscreen</li>
+                        <li><em>RIGHT CLICK</em> to send an object to the back</li>
+                        <li><em>SHIFT CLICK</em> or <em>MIDDLE CLICK</em> to duplicate an object</li>
+                        <li><em>SCROLL</em> to scale objects</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
         <p>
-            a basic scripting system allows for playing sounds, moving between scenes, and playing text:
-            <ul>
-                <li><em>PLAY:</em> to play a sound</li>
-                <li><em>STOP:</em> to stop a sound</li>
-                <li><em>GOTO:</em> to go to a different scene</li>
-                <li><em>[TYPE]:</em> to display text using a specific dialogue type</li>
-            </ul>
-        </p>
-        <p>
-            misc features:
-            <ul>
-                <li><em>//</em> to comment in scripts</li>
-                <li>TAB to switch between EDITOR MODE and GAME MODE</li>
-                <li>F to toggle fullscreen</li>
-                <li>RIGHT CLICK to send an object to the back</li>
-                <li>MIDDLE CLICK or SHIFT CLICK to duplicate an object</li>
-                <li>SCROLL to scale objects</li>
-            </ul>
-        </p>
-        <p>
-            a promise:
-            <ul>
-                <li>this tool has no way of collecting your data.</li>
-            </ul>
+            this tool does not and will never collect your data.
         </p>
         <p>
             <button type="button" onclick="this.parentElement.parentElement.close()">close</button>

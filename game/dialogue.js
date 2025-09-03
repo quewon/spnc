@@ -48,6 +48,14 @@ class Dialogue {
         } else if (data.type === "GOTO") {
             this.game.setScene(data.line);
             this.next();
+        } else if (data.type === "WAIT") {
+            this.lockInput = true;
+            setTimeout(() => {
+                this.next();
+                setTimeout(() => {
+                    this.lockInput = false;
+                }, 200)
+            }, parseFloat(data.line) * 1000);
         } else {
             this.boxes.push(new DialogueBox({
                 type: data.type,
@@ -76,7 +84,7 @@ class Dialogue {
     }
 
     update(delta) {
-        if (this.boxes[this.boxes.length - 1]?.awaitingInput && this.game.mouse.clicked)
+        if (!this.lockInput && this.boxes[this.boxes.length - 1]?.awaitingInput && this.game.mouse.clicked)
             this.next();
         for (let box of this.boxes)
             box.update(delta);
