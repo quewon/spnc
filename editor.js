@@ -682,20 +682,15 @@ function createSoundElement(sound, onremove) {
     button.type = "button";
     button.textContent = "▶";
     button.title = "preview sound";
+    button.dataset.sound = sound;
     setLabel(button);
-    const playSound = () => {
-        button.textContent = "⏹";
-        button.onclick = stopSound;
-        button.focus();
-        game.playSound(sound, stopSound);
-    }
-    const stopSound = () => {
-        button.textContent = "▶";
-        button.onclick = playSound;
-        button.blur();
-        game.stopSound(sound);
-    }
-    button.onclick = playSound;
+    button.onclick = () => {
+        if (!game.sounds[sound].playing) {
+            game.playSound(sound);
+        } else {
+            game.stopSound(sound);
+        }
+    };
     flex.appendChild(button);
 
     var removebutton = document.createElement("button");

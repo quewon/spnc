@@ -334,18 +334,35 @@ return {
         requestAnimationFrame(this.update.bind(this));
     }
     
-    playSound(sound, onend) {
+    playSound(sound) {
         if (!this.sounds[sound])
             return;
-        if (this.sounds[sound])
-            this.sounds[sound].play(onend);
+        var onend;
+        if (window.editor) {
+            var button = document.querySelector(`[data-sound="${sound}"]`);
+            if (button) {
+                button.textContent = "⏹";
+                button.classList.add("toggled");
+                onend = () => {
+                    button.textContent = "▶";
+                    button.classList.remove("toggled");
+                }
+            }
+        }
+        this.sounds[sound].play(onend);
     }
 
     stopSound(sound) {
         if (!this.sounds[sound])
             return;
-        if (this.sounds[sound])
-            this.sounds[sound].stop();
+        this.sounds[sound].stop();
+        if (window.editor) {
+            var button = document.querySelector(`[data-sound="${sound}"]`);
+            if (button) {
+                button.textContent = "▶";
+                button.classList.remove("toggled");
+            }
+        }
     }
 
     stopSounds() {
