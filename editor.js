@@ -350,7 +350,7 @@ function loadGame(file) {
         game.destroy();
         clearAssetFolder();
         game = new Game(data);
-        document.title = game.name;
+        updateGame();
         updateScenes();
         updateSounds();
         _folderpickerbutton.focus();
@@ -396,6 +396,10 @@ function grabObject(object) {
     let scene = object.scene;
     scene.removeObject(object);
     scene.addObject(object);
+}
+
+function duplicateObject(object) {
+    return new GameObject(object);
 }
 
 function selectObject(object) {
@@ -581,6 +585,12 @@ function switchMode() {
         _modebutton.textContent = "EDITOR MODE";
         game.dialogue = null;
     }
+}
+
+function updateGame() {
+    _gamewidth.value = game.canvas.width;
+    _gameheight.value = game.canvas.height;
+    document.title = game.name;
 }
 
 function updateScenes() {
@@ -869,7 +879,7 @@ window.addEventListener("load", () => {
         width: editor.gameWidth,
         height: editor.gameHeight
     });
-    document.title = game.name;
+    updateGame();
     clearAssetFolder();
     Promise.all(
         [
@@ -958,15 +968,32 @@ window.addEventListener("load", () => {
                 document.body.classList.remove("delete-object");
             }
         }
+        if (
+            !document.querySelector("canvas:hover") && game.scenes[game.currentScene].hoveredObject ||
+            document.querySelector("canvas:hover") && !game.scenes[game.currentScene].hoveredObject
+        )
+            _hoveralt.textContent = "";
+        editor.scrollOffset = null;
     })
 
     document.addEventListener("mousedown", e => {
+        if (ENV === "editor" && e.target === game.canvas) {
+            var hovered = game.scenes[game.currentScene].hoveredObject;
+            if (hovered) {
+                if (e.button === 0 && !editor.grabbedObject && !game.mouse.cancelClick) {
+                    grabObject(hovered);
+                } else if (e.button === 1) {
+                    var duplicate = duplicateObject(hovered);
+                    grabObject(duplicate);
+                }
+            }
+        }
         if (e.target !== game.canvas && e.target !== _objectmenu && !containsElement(_objectmenu, e.target)) {
             deselectObject();
         }
     })
 
-    document.addEventListener("mouseup", async () => {
+    document.addEventListener("mouseup", async (e) => {
         if (editor.grabbedObject) {
             document.body.classList.remove("dragging");
             document.body.classList.remove("delete-object");

@@ -142,7 +142,7 @@ return {
         document.addEventListener("mouseup", this.mouseupEventListener);
         window.addEventListener("blur", this.mouseupEventListener);
         document.addEventListener("mousemove", this.mousemoveEventListener);
-        this.canvas.addEventListener("click", this.mouseclickEventListener);
+        document.addEventListener("click", this.mouseclickEventListener);
         window.addEventListener("resize", this.resizeEventListener);
 
         // 
@@ -160,14 +160,13 @@ return {
         document.removeEventListener("mouseup", this.mouseupEventListener);
         window.removeEventListener("blur", this.mouseupEventListener);
         document.removeEventListener("mousemove", this.mousemoveEventListener);
-        this.canvas.removeEventListener("click", this.mouseclickEventListener);
+        document.removeEventListener("click", this.mouseclickEventListener);
         window.removeEventListener("resize", this.resizeEventListener);
     }
 
     mousedown(e) {
         if (e.button === 0) {
             this.mouse.down = true;
-            this.mouse.cancelClick = null;
             this.mouse.clickStartPosition = [
                 this.mouse.position[0],
                 this.mouse.position[1]
@@ -178,7 +177,6 @@ return {
     mouseup(e) {
         if (e.button === 0) {
             this.mouse.down = false;
-            this.mouse.clickStartPosition = null;
             this.mouse.up = true;
         }
     }
@@ -192,31 +190,28 @@ return {
             let dx = this.mouse.clickStartPosition[0] - this.mouse.position[0];
             let dy = this.mouse.clickStartPosition[1] - this.mouse.position[1];
             let sqrdist = dx * dx + dy * dy;
-            if (sqrdist > 4)
-                this.mouse.cancelClick = true;
+            if (sqrdist > 10)
+                this.mouse.cancelClick = true; 
         }
-        if (editor)
-            editor.scrollOffset = null;
     }
 
     mouseclick(e) {
-        if (e.button === 0 && !this.mouse.cancelClick) {
-            this.mouse.clicked = true;
+        if (e.button === 0) {
+            if (!this.mouse.cancelClick)
+                this.mouse.clicked = true;
+            this.mouse.cancelClick = null;
+            this.mouse.clickStartPosition = null;
         }
     }
 
     setSize(width, height) {
         this.canvas.width = width ?? this.canvas.width;
         this.canvas.height = height ?? this.canvas.height;
-        if (editor) {
-            _gamewidth.value = this.canvas.width;
-            _gameheight.value = this.canvas.height;
-        }
         this.windowresize();
     }
 
     windowresize() {
-        if (editor) {
+        if (window.editor) {
             let w = Math.min(this.canvas.width, window.innerWidth / 2);
             this.canvas.style.width = w + "px";
             this.canvas.style.height = (this.canvas.height * (w / this.canvas.width)) + "px";
@@ -241,7 +236,7 @@ return {
             return;
         }
         this.currentScene = sceneName;
-        if (editor) {
+        if (window.editor) {
             _sceneselect.value = this.currentScene;
             _scenename.value = this.currentScene;
             if (!this.scenes[this.currentScene].background) {
@@ -296,7 +291,7 @@ return {
             if (this.currentScene)
                 this.scenes[this.currentScene].update(delta);
         }
-        if (editor) {
+        if (window.editor) {
             if (editor.selectedObject && this.mouse.clicked && !editor.selectedObject.hovered())
                 deselectObject();
         }
@@ -405,12 +400,6 @@ class Scene {
             let object = this.objects[i];
             object.update(delta);
         }
-        if (
-            editor && !this.hoveredObject && 
-            this.game.mouse.position[0] >= 0 && this.game.mouse.position[0] <= this.game.canvas.width &&
-            this.game.mouse.position[1] >= 0 && this.game.mouse.position[1] <= this.game.canvas.height
-        )
-            _hoveralt.textContent = "";
     }
 
     generateData() {
@@ -432,7 +421,6 @@ class Scene {
 
 class GameObject {
     scene;
-    loaded = false;
     sprite;
     position = [0, 0];
     script = "PLAY: interact";
@@ -471,8 +459,11 @@ class GameObject {
         var x = this.position[0];
         var y = this.position[1];
         if (
-            ENV !== "editor" && hovered && this.dialogue.lines.length > 0 && mouse.down && !mouse.cancelClick || 
-            ENV === "editor" && editor?.selectedObject === this
+            window.editor &&
+            (
+                ENV !== "editor" && hovered && this.dialogue.lines.length > 0 && mouse.down && !mouse.cancelClick || 
+                ENV === "editor" && editor.selectedObject === this
+            )
         )
             this.sprite.drawOutline(context, "active", x, y)
         else if (hovered && this.dialogue.lines.length > 0)
@@ -483,13 +474,10 @@ class GameObject {
     update(delta) {
         var mouse = this.scene.game.mouse;
         var hovered = this.scene.hoveredObject === this;
-        if (ENV === "editor" && editor) {
+        if (window.editor && ENV === "editor") {
             if (hovered) {
                 this.scene.game.canvas.classList.add("grab");
                 _hoveralt.textContent = this.sprite.src;
-            }
-            if (!editor.grabbedObject && hovered && mouse.down) {
-                grabObject(this);
             }
             if (hovered && mouse.clicked) {
                 selectObject(this);
@@ -503,7 +491,7 @@ class GameObject {
 
     click() {
         if (this.dialogue.lines.length > 0) {
-            if (editor) {
+            if (window.editor) {
                 this.dialogue = new Dialogue({
                     text: this.script,
                     game: this.scene.game
