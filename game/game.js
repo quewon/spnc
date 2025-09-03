@@ -244,6 +244,12 @@ return {
                 this.dialogue = exitDialogue;
                 this.dialogue.play();
             }
+            await new Promise(async resolve => {
+                while (this.dialogue?.playing) {
+                    await sleep(16);
+                }
+                resolve();
+            })
         }
         if (window.editor && sceneName !== this.currentScene) {
             _sceneselect.value = sceneName;
@@ -260,12 +266,6 @@ return {
         }
         this.currentScene = sceneName;
         if (ENV !== "editor") {
-            await new Promise(async resolve => {
-                while (this.dialogue?.playing) {
-                    await sleep(16);
-                }
-                resolve();
-            })
             var enterDialogue = new Dialogue({
                 game: this, 
                 text: this.scenes[this.currentScene].enterScript
