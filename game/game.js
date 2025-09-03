@@ -13,14 +13,14 @@ class Game {
     scenes;
     currentScene;
 
-    static defaultCursorDefault = { src: "_res/cursor_default.png" };
-    static defaultCursorDown = { src: "_res/cursor_default.png" };
+    static defaultCursorDefault = { src: "_preset/cursor_default.png" };
+    static defaultCursorDown = { src: "_preset/cursor_default.png" };
     cursorDefault;
     cursorDown;
 
     sounds = {
-        "interact": "_res/interact.mp3",
-        "dialogue": "_res/default_dialogue.mp3"
+        "interact": "_preset/interact.mp3",
+        "dialogue": "_preset/dialogue.mp3"
     };
 
     specialDialogueIds = ["PLAY", "STOP", "GOTO"];
@@ -39,7 +39,7 @@ class Game {
 //     interval: 30 + (previousChar?.match(/[.?!,—:]/) ? 200 : 0),
 //     charIncrement: 1,
 // }`,
-//             sound: "_res/default_dialogue.mp3"
+//             sound: "_res/dialogue.mp3"
 //         },
         default: {
             textPadding: 20,

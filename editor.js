@@ -37,10 +37,10 @@ function allSprites() {
 }
 
 function clearAssetFolder() {
-    if (document.querySelector(".folder"))
-        document.querySelector(".folder").remove();
+    if (document.querySelector(".user.folder"))
+        document.querySelector(".user.folder").remove();
     for (let sprite of allSprites()) {
-        if (sprite.src && !sprite.src.includes("_res/")) {
+        if (sprite.src && !sprite.src.includes("_preset/")) {
             sprite.loaded = false;
         }
     }
@@ -54,7 +54,10 @@ function clearAssetFolder() {
 function loadAssetFolder(files) {
     clearAssetFolder();
     var structure = getFolderStructure(files);
-    createFolderElement(_filesystem, Object.keys(structure)[0], structure).querySelector("details").open = true;
+    var userFolder = createFolderElement(_filesystem, Object.keys(structure)[0], structure);
+    userFolder.classList.add("user");
+    userFolder.querySelector("details").open = true;
+    userFolder.querySelector("summary").focus();
     game.windowresize();
     _folderpicker.value = "";
     if (game.cursorDefault.src !== Game.defaultCursorDefault.src) {
@@ -71,7 +74,7 @@ function loadAssetFolder(files) {
 function getFolderStructure(files) {
     const structure = {};
     for (let file of files) {
-        const pathParts = file.webkitRelativePath.split('/');
+        const pathParts = (file.webkitRelativePath || file.path).split('/');
         let current = structure;
         for (let i = 0; i < pathParts.length - 1; i++) {
             const dirName = pathParts[i];
@@ -86,13 +89,13 @@ function getFolderStructure(files) {
         if (editor.supportedImageFormats.includes(ext)) {
             current[filename] = { 
                 kind: "image", 
-                path: file.webkitRelativePath,
+                path: file.webkitRelativePath || file.path,
                 file: file
             };
         } else if (editor.supportedAudioFormats.includes(ext)) {
             current[filename] = { 
                 kind: "audio",
-                path: file.webkitRelativePath,
+                path: file.webkitRelativePath || file.path,
                 file: file
             };
         }
@@ -143,7 +146,7 @@ function createAudioFileElement(parentElement, filename, parent) {
     const file = parent[filename].file;
     const url = URL.createObjectURL(file);
     const sprite = new Sprite({
-        src: "_res/music.png",
+        src: "_preset/music.png",
         onload: function() { this.classList.add("loaded") }.bind(el)
     });
     el.addEventListener("mousedown", () => {
@@ -152,7 +155,7 @@ function createAudioFileElement(parentElement, filename, parent) {
             let scene = game.scenes[game.currentScene];
             let object = new GameObject({
                 scene,
-                sprite: { src: "_res/music.png", buffer: sprite.buffer },
+                sprite: { src: "_preset/music.png", buffer: sprite.buffer },
                 script: `// SFX OBJECT -- drag me into the sfx file box!
 //SRC:${filepath}
 //URL:${url}`,
@@ -269,7 +272,7 @@ async function exportGame() {
     ];
     var objecturl = [];
     for (let sprite of allSprites()) {
-        if (sprite.src.includes("_res/"))
+        if (sprite.src.includes("_preset/"))
             res.push(sprite.src);
         else
             objecturl.push(sprite);
@@ -287,7 +290,7 @@ async function exportGame() {
             }
         }).catch(() => {
             error = 1;
-            console.error("_res and _lib fetch unsuccessful.");
+            console.error("_preset and _lib fetch unsuccessful.");
         })
     }
     if (objecturl.length > 0) {
@@ -833,6 +836,29 @@ window.addEventListener("load", () => {
     });
     document.title = game.name;
     clearAssetFolder();
+    Promise.all(
+        [
+            "_preset/cursor_default.png",
+            "_preset/cursor_grab.png",
+            "_preset/cursor_grabbing.png",
+            "_preset/dialogue.mp3",
+            "_preset/interact.mp3",
+            "_preset/music.png"
+        ].map(path => {
+            return fetch(path, {cache: "force-cache"})
+                .then(res => res.blob())
+                .then(blob => {
+                    var file = new File([blob], path.split("/").pop());
+                    file.path = path;
+                    return file;
+                })
+        })
+    ).then(files => {
+        var structure = getFolderStructure(files);
+        _filesystem.appendChild(
+            createFolderElement(_filesystem, "_preset", structure)
+        );
+    })
 
     game.canvas.addEventListener("wheel", e => {
         var object = editor.grabbedObject || game.scenes[game.currentScene].hoveredObject;
