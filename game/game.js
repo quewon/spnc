@@ -323,7 +323,7 @@ return {
             if (
                 this.mouse.position[0] >= 0 && this.mouse.position[0] <= this.canvas.width &&
                 this.mouse.position[1] >= 0 && this.mouse.position[1] <= this.canvas.height &&
-                editor.selectedObject && this.mouse.clicked && !editor.selectedObject.hovered()
+                editor.selectedObject && !this.mouse.cancelClick && this.mouse.clicked && !editor.selectedObject.hovered()
             )
                 deselectObject();
         }
