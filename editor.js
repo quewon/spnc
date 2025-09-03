@@ -661,6 +661,24 @@ function createSoundElement(sound, onremove) {
     })
     flex.appendChild(input);
 
+    var loopButton = document.createElement("button");
+    loopButton.type = "button";
+    loopButton.textContent = "⟳";
+    loopButton.title = "loop sound toggle";
+    setLabel(loopButton);
+    loopButton.onclick = () => {
+        game.sounds[sound].setLoop(!game.sounds[sound].loop);
+        if (game.sounds[sound].loop) {
+            loopButton.classList.add("toggled");
+        } else {
+            loopButton.classList.remove("toggled");
+        }
+    };
+    console.log(game.sounds[sound].loop);
+    if (game.sounds[sound].loop)
+        loopButton.classList.add("toggled");
+    flex.appendChild(loopButton);
+
     var button = document.createElement("button");
     button.type = "button";
     button.textContent = "▶";

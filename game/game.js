@@ -19,8 +19,8 @@ class Game {
     cursorDown;
 
     sounds = {
-        "interact": "_preset/interact.mp3",
-        "dialogue": "_preset/dialogue.mp3"
+        "interact": { src: "_preset/interact.mp3" },
+        "dialogue": { src: "_preset/dialogue.mp3" }
     };
 
     specialDialogueIds = ["PLAY", "STOP", "GOTO", "WAIT"];
@@ -116,17 +116,10 @@ return {
             this.scenes = { "main": new Scene({ game: this }) };
         }
 
-        if (o.sounds) {
-            this.sounds = {};
-            for (let sound in o.sounds) {
-                this.sounds[sound] = o.sounds[sound].src;
-            }
-        }
-        for (let sound in this.sounds) {
-            this.sounds[sound] = new AudioSprite({
-                src: this.sounds[sound]
-            });
-        }
+        if (o.sounds)
+            this.sounds = o.sounds;
+        for (let sound in this.sounds)
+            this.sounds[sound] = new AudioSprite(this.sounds[sound]);
         this.cursorDefault = new Sprite(o.cursorDefault || Game.defaultCursorDefault);
         this.cursorDown = new Sprite(o.cursorDown || Game.defaultCursorDown);
 

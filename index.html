@@ -89,13 +89,16 @@
         input::placeholder {
             font-style: italic;
         }
-        button:active, input[type="button"]:active {
+        button:active, input[type="button"]:active, button.toggled {
             font-style: italic;
             background: greenyellow;
             color: black;
         }
         button {
             cursor: pointer;
+        }
+        button.toggled {
+            border-color: greenyellow;
         }
         button:disabled {
             background: transparent;
