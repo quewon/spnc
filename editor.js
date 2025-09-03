@@ -435,7 +435,7 @@ function setCursorDefault() {
     var object = editor.grabbedObject;
     if (object) {
         game.cursorDefault = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
-        _cursordefault.style.background = `url(${object.sprite.image.src})`;
+        _cursordefault.style.backgroundImage = `url(${object.sprite.image.src})`;
         _cursordefault.title = object.sprite.src;
     }
 }
@@ -444,7 +444,7 @@ function setCursorDown() {
     var object = editor.grabbedObject;
     if (object) {
         game.cursorDown = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
-        _cursordown.style.background = `url(${object.sprite.image.src})`;
+        _cursordown.style.backgroundImage = `url(${object.sprite.image.src})`;
         _cursordown.title = object.sprite.src;
     }
 }
