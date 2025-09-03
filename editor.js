@@ -590,6 +590,7 @@ function switchMode() {
         ENV = "game";
         document.body.classList.add("game");
         _modebutton.textContent = "PLAY MODE";
+        game.setScene(game.currentScene);
     } else {
         ENV = "editor";
         document.body.classList.remove("game");

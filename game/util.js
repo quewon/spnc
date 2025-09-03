@@ -17,3 +17,9 @@ function smoothstep(x) {
 function smootherstep(x) {
     return x * x * x * (x * (6 * x - 15) + 10);
 }
+
+function sleep(duration) {
+    return new Promise(resolve => {
+        setTimeout(() => { resolve() }, duration);
+    })
+}

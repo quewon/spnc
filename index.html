@@ -14,6 +14,8 @@
             margin: 0;
             background: black;
             color-scheme: dark;
+            --line-height: 1.3em;
+            line-height: 1.3em;
         }
         body {
             display: flex;
@@ -57,6 +59,9 @@
         body {
             font-size: 13px;
             font-family: "Atkinson Hyperlegible Mono", monospace;
+        }
+        summary:has(h1) {
+            list-style-type: "";
         }
         h1 {
             font-size: inherit;
@@ -260,33 +265,41 @@
     <aside id="_objectmenu" class="hidden">
         <h1>SCRIPT</h1>
         <textarea id="_objectscript" title="object script"></textarea>
-        <br>
+        <br><br>
         <h1>IMAGE</h1>
         <img id="_objectpreview" src="" title="" alt="selected object">
     </aside>
     <aside id="_gamemenu">
-        <h1>SCENE</h1>
-        <div class="flex">
-            <input id="_scenename" type="text" title="scene name" onchange="renameScene()" class="expand">
-            <button type="button" onclick="duplicateScene()">duplicate</button>
-            <button type="button" class="delete" onclick="deleteScene()">delete</button>
-        </div>
-        <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
+        <details open>
+            <summary><h1>SCENE</h1></summary>
+            <div class="flex" style="margin-top: 5px;">
+                <input id="_scenename" type="text" title="scene name" onchange="renameScene()" class="expand">
+                <button type="button" onclick="duplicateScene()">duplicate</button>
+                <button type="button" class="delete" onclick="deleteScene()">delete</button>
+            </div>
+            <div style="margin: 5px 0" class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
+            <textarea id="_enterscript" placeholder="// enter script"></textarea>
+            <textarea id="_exitscript" placeholder="// exit script"></textarea>
+        </details>
         <div class="flex">
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
         </div>
         <br><br>
-        <h1>CURSOR</h1>
-        <div class="flex">
-            <div class="dropzone" id="_cursordefault" onmouseup="setCursorDefault()" title="">cursor (default)</div>
-            <div class="dropzone" id="_cursordown" onmouseup="setCursorDown()" title="">cursor (down)</div>
-        </div>
+        <details open>
+            <summary><h1>CURSOR</h1></summary>
+            <div class="flex" style="margin-top: 5px">
+                <div class="dropzone" id="_cursordefault" onmouseup="setCursorDefault()" title="">cursor (default)</div>
+                <div class="dropzone" id="_cursordown" onmouseup="setCursorDown()" title="">cursor (down)</div>
+            </div>
+        </details>
         <br><br>
         <div>
-            <h1>SFX</h1>
             <div class="flex" style="flex-direction: column;">
-                <div class="flex" style="flex-direction: column;" id="_soundslist"></div>
+                <details open>
+                    <summary><h1>SFX</h1></summary>
+                    <div class="flex" style="flex-direction: column; margin-top: 5px;" id="_soundslist"></div>
+                </details>
                 <div class="flex">
                     <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
                     <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="">file (mp3, wav, ogg)</div>
@@ -296,9 +309,13 @@
         </div>
         <br><br>
         <div>
-            <h1>DIALOGUE TYPES</h1>
-            <ul id="_dialoguetypes"></ul>
-            <div class="flex">
+            <details open>
+                <summary>
+                    <h1>DIALOGUE TYPES</h1>
+                </summary>
+                <ul id="_dialoguetypes"></ul>
+            </details>
+            <div class="flex" style="margin-top: 5px;">
                 <input type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
                 <button type="button" title="create type" onclick="addDialogueType(this.previousElementSibling.value); this.previousElementSibling.value = ''">+</button>
             </div>
@@ -409,8 +426,16 @@
             }
         })
 
-        document.querySelector("textarea").addEventListener("focus", resizeTextarea);
-        document.querySelector("textarea").addEventListener("input", resizeTextarea);
+        for (let textarea of document.querySelectorAll("textarea")) {
+            textarea.addEventListener("focus", resizeTextarea);
+            textarea.addEventListener("input", resizeTextarea);
+        }
+        _enterscript.addEventListener("change", function() {
+            game.scenes[game.currentScene].enterScript = this.value;
+        })
+        _exitscript.addEventListener("change", function() {
+            game.scenes[game.currentScene].exitScript = this.value;
+        })
 
         updateScenes();
         updateSounds();

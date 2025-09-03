@@ -27,6 +27,8 @@ class Dialogue {
     }
 
     play() {
+        if (this.lines.length === 0)
+            return;
         this.playing = true;
         this.boxes = [];
         this.lineIndex = 0;
@@ -35,12 +37,6 @@ class Dialogue {
 
     playLine() {
         let data = this.lines[this.lineIndex];
-        // for (let i=0; i<this.boxes.length; i++) {
-        //     if (this.boxes[i].closed) continue;
-        //     if (this.boxes[i].type === data.type || this.lineIndex - i > 1) {
-        //         this.boxes[i].close();
-        //     }
-        // }
         for (let box of this.boxes)
             if (!box.closed) box.close();
         if (data.type === "PLAY") {

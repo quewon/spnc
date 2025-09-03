@@ -230,21 +230,49 @@ return {
         this.cachedCanvasRect = this.canvas.getBoundingClientRect();
     }
 
-    setScene(sceneName) {
+    async setScene(sceneName) {
         if (!this.scenes[sceneName]) {
             alert(`the scene "${sceneName}" does not exist.`);
             return;
         }
-        this.currentScene = sceneName;
-        if (window.editor) {
-            _sceneselect.value = this.currentScene;
-            _scenename.value = this.currentScene;
-            if (!this.scenes[this.currentScene].background) {
+        if (ENV !== "editor" && sceneName !== this.currentScene) {
+            var exitDialogue = new Dialogue({
+                game: this, 
+                text: this.scenes[this.currentScene].exitScript
+            })
+            if (exitDialogue.lines.length > 0) {
+                this.dialogue = exitDialogue;
+                this.dialogue.play();
+            }
+        }
+        if (window.editor && sceneName !== this.currentScene) {
+            _sceneselect.value = sceneName;
+            _scenename.value = sceneName;
+            if (!this.scenes[sceneName].background) {
                 _scenebg.title = "drop background image here";
                 _scenebg.style.backgroundImage = `none`;
             } else {
-                _scenebg.title = this.scenes[this.currentScene].background.src;
-                _scenebg.style.backgroundImage = `url(${this.scenes[this.currentScene].background?.image.src})`;
+                _scenebg.title = this.scenes[sceneName].background.src;
+                _scenebg.style.backgroundImage = `url(${this.scenes[sceneName].background?.image.src})`;
+            }
+            _enterscript.value = this.scenes[sceneName].enterScript;
+            _exitscript.value = this.scenes[sceneName].exitScript;
+        }
+        this.currentScene = sceneName;
+        if (ENV !== "editor") {
+            await new Promise(async resolve => {
+                while (this.dialogue?.playing) {
+                    await sleep(16);
+                }
+                resolve();
+            })
+            var enterDialogue = new Dialogue({
+                game: this, 
+                text: this.scenes[this.currentScene].enterScript
+            })
+            if (enterDialogue.lines.length > 0) {
+                this.dialogue = enterDialogue;
+                this.dialogue.play();
             }
         }
     }
@@ -357,11 +385,17 @@ class Scene {
     objects = [];
     background;
     hoveredObject;
+    enterScript = "";
+    exitScript = "";
     
     constructor(o) {
         this.game = o.game;
         if (o.background)
             this.background = new Sprite(o.background);
+        if (o.enterScript)
+            this.enterScript = o.enterScript;
+        if (o.exitScript)
+            this.exitScript = o.exitScript;
         if (o.objects) {
             for (let object of o.objects) {
                 object.scene = this;
@@ -404,7 +438,9 @@ class Scene {
 
     generateData() {
         var data = {
-            objects: []
+            objects: [],
+            enterScript: this.enterScript,
+            exitScript: this.exitScript
         };
         if (this.background)
             data.background = this.background.generateData();
