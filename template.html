@@ -7,16 +7,16 @@
     <style>
         body {
             background: #000;
-            cursor: none
+            cursor: none;
         }
         canvas {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%)
+            transform: translate(-50%, -50%);
         }
     </style>
-    <script type="text/javascript" src="_lib/typeset/typeset.min.js"></script>
+    <script type="text/javascript" src="_lib/typeset/typeset.min.js" defer></script>
     <script type="text/javascript" defer>GAME_UTIL_JS_</script>
     <script type="text/javascript" defer>GAME_SPRITE_JS_</script>
     <script type="text/javascript" defer>GAME_DIALOGUE_JS_</script>
@@ -26,6 +26,6 @@
     <canvas></canvas>
 </body>
 <script type="text/javascript">
-    var ENV; new Game(GAME_DATA_)
+    var ENV; window.onload = () => {new Game(GAME_DATA_)}
 </script>
 </html>
