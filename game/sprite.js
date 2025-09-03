@@ -88,7 +88,7 @@ class Sprite {
         }
         fakeContext.clearRect(0, 0, 1, 1);
         fakeContext.drawImage(this.image, -Math.floor(x), -Math.floor(y));
-        return fakeContext.getImageData(0, 0, 1, 1).data[3] < 255;
+        return fakeContext.getImageData(0, 0, 1, 1).data[3] === 0;
     }
 
     generateData() {
