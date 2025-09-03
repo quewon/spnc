@@ -10,7 +10,8 @@ a basic scripting system allows for playing sounds, moving between scenes, and p
 - [TYPE]: to display text using a specific dialogue type
 
 misc shortcuts:
-- TAB to switch between Editor Mode and Game Mode
 - // to comment in scripts
-- SCROLL to scale objects
+- TAB to switch between Editor Mode and Game Mode
 - RIGHT CLICK to send an object to the back
+- MIDDLE CLICK to duplicate an object
+- SCROLL to scale objects
