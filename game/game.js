@@ -259,6 +259,10 @@ return {
             }
             _enterscript.value = this.scenes[sceneName].enterScript;
             _exitscript.value = this.scenes[sceneName].exitScript;
+            _enterscript.style.height = "";
+            _enterscript.style.height = _enterscript.scrollHeight + 5 + "px";
+            _exitscript.style.height = "";
+            _exitscript.style.height = _exitscript.scrollHeight + 5 + "px";
         }
         this.currentScene = sceneName;
         if (ENV !== "editor") {
