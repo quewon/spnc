@@ -264,11 +264,7 @@ async function exportGame() {
     var zip = new JSZip();
     
     var res = [
-        "_lib/typeset/lib/en-us.js",
-        "_lib/typeset/lib/hypher.js",
-        "_lib/typeset/src/formatter.js",
-        "_lib/typeset/src/linebreak.js",
-        "_lib/typeset/src/linked-list.js",
+        "_lib/typeset/typeset.min.js",
         "_lib/typeset/LICENSE",
     ];
     var objecturl = [];
