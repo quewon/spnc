@@ -674,7 +674,6 @@ function createSoundElement(sound, onremove) {
             loopButton.classList.remove("toggled");
         }
     };
-    console.log(game.sounds[sound].loop);
     if (game.sounds[sound].loop)
         loopButton.classList.add("toggled");
     flex.appendChild(loopButton);

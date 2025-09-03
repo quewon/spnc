@@ -294,8 +294,8 @@
                 <button type="button" class="delete" onclick="deleteScene()">delete</button>
             </div>
             <div style="margin: 5px 0" class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
-            <textarea id="_enterscript" placeholder="// enter script"></textarea>
-            <textarea id="_exitscript" placeholder="// exit script"></textarea>
+            <textarea id="_enterscript" placeholder="// enter script" title="scene enter script"></textarea>
+            <textarea id="_exitscript" placeholder="// exit script" title="scene exit script"></textarea>
         </details>
         <div class="flex">
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
