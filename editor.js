@@ -452,20 +452,22 @@ function setCursorDown() {
     }
 }
 
-function addDialogueType(type) {
+function addDialogueType() {
+    type = _dialoguetypename.value;
     type = type.trim();
     if (type === "") {
         alert("this dialogue type needs a name.");
         return;
     }
     if (game.specialDialogueIds.includes(type)) {
-        alert(`sorry, the name ${type} is reserved!`);
+        alert(`sorry, the name "${type}" is reserved.`);
         return;
     }
     if (game.dialogueTypes[type]) {
         alert(`a dialogue type called "${type}" already exists!`);
         return;
     }
+    _dialoguetypename.value = "";
     game.dialogueTypes[type] = {};
     updateDialogueTypes();
 }

@@ -329,8 +329,8 @@
                 <ul id="_dialoguetypes"></ul>
             </details>
             <div class="flex" style="margin-top: 5px;">
-                <input type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
-                <button type="button" title="create type" onclick="addDialogueType(this.previousElementSibling.value); this.previousElementSibling.value = ''">+</button>
+                <input id="_dialoguetypename" type="text" placeholder="id" class="expand" title="new type name" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
+                <button type="button" title="create type" onclick="addDialogueType();">+</button>
             </div>
         </div>
     </aside>
