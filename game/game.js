@@ -220,8 +220,13 @@ return {
             h = w / ratio;
         }
         if (window.editor && !document.body.classList.contains("fullscreen")) {
-            w /= 1.5;
-            h /= 1.5;
+            if (w > window.innerWidth / 2) {
+                w /= 2;
+                h /= 2;
+            } else if (h > window.innerHeight / 1.3) {
+                w /= 1.3;
+                h /= 1.3;
+            }
         }
         this.canvas.style.width = w + "px";
         this.canvas.style.height = h + "px";
