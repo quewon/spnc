@@ -472,7 +472,7 @@ class GameObject {
             this.sprite = new Sprite(o.sprite);
         if (o.position)
             this.position = o.position;
-        if (o.script)
+        if ("script" in o)
             this.script = o.script;
         this.scene = o.scene;
         this.dialogue = new Dialogue({
