@@ -329,7 +329,7 @@ async function exportGame() {
     })
 
     if (error) {
-        alert("network connection lost :( failed to download necessary libraries.");
+        alert("failed to download necessary files :(");
         return;
     }
 
@@ -990,6 +990,10 @@ window.addEventListener("load", () => {
 
     document.addEventListener("keydown", e => {
         editor.shiftPressed = e.key === "Shift";
+        if (e.code === "KeyF") {
+            document.body.classList.toggle("fullscreen");
+            game.windowresize();
+        }
     })
 
     document.addEventListener("keyup", () => {

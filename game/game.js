@@ -211,22 +211,20 @@ return {
     }
 
     windowresize() {
-        if (window.editor) {
-            let w = Math.min(this.canvas.width, window.innerWidth / 2);
-            this.canvas.style.width = w + "px";
-            this.canvas.style.height = (this.canvas.height * (w / this.canvas.width)) + "px";
-        } else {
-            let ratio = this.canvas.width / this.canvas.height;
-            let w = window.innerWidth;
-            let h = window.innerHeight;
-            if (w / h > ratio) {
-                w = h * ratio;
-            } else if (w / h < ratio) {
-                h = w / ratio;
-            }
-            this.canvas.style.width = w + "px";
-            this.canvas.style.height = h + "px";
+        let ratio = this.canvas.width / this.canvas.height;
+        let w = window.innerWidth;
+        let h = window.innerHeight;
+        if (w / h > ratio) {
+            w = h * ratio;
+        } else if (w / h < ratio) {
+            h = w / ratio;
         }
+        if (window.editor && !document.body.classList.contains("fullscreen")) {
+            w /= 1.5;
+            h /= 1.5;
+        }
+        this.canvas.style.width = w + "px";
+        this.canvas.style.height = h + "px";
         this.cachedCanvasRect = this.canvas.getBoundingClientRect();
     }
 

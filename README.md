@@ -12,6 +12,7 @@ a basic scripting system allows for playing sounds, moving between scenes, and p
 misc shortcuts:
 - // to comment in scripts
 - TAB to switch between Editor Mode and Game Mode
+- F to toggle fullscreen
 - RIGHT CLICK to send an object to the back
 - MIDDLE CLICK or SHIFT CLICK to duplicate an object
 - SCROLL to scale objects
