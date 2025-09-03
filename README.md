@@ -13,5 +13,5 @@ misc shortcuts:
 - // to comment in scripts
 - TAB to switch between Editor Mode and Game Mode
 - RIGHT CLICK to send an object to the back
-- MIDDLE CLICK to duplicate an object
+- MIDDLE CLICK or SHIFT CLICK to duplicate an object
 - SCROLL to scale objects

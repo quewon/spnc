@@ -9,6 +9,7 @@ var editor = {
     selectedObject: null,
     disablePrompts: false,
     selectedSoundObject: null,
+    shiftPressed: false,
     gameWidth: 800,
     gameHeight: 600
 }
@@ -978,13 +979,26 @@ window.addEventListener("load", () => {
         editor.scrollOffset = null;
     })
 
+    document.addEventListener("keydown", e => {
+        editor.shiftPressed = e.key === "Shift";
+        console.log(editor.shiftPressed, e.key);
+    })
+
+    document.addEventListener("keyup", () => {
+        editor.shiftPressed = false;
+    })
+    window.addEventListener("blur", () => {
+        editor.shiftPressed = false;
+    })
+
     document.addEventListener("mousedown", e => {
         if (ENV === "editor" && e.target === game.canvas) {
             var hovered = game.scenes[game.currentScene].hoveredObject;
             if (hovered) {
                 if (e.button === 0 && !editor.grabbedObject && !game.mouse.cancelClick) {
                     grabObject(hovered);
-                } else if (e.button === 1) {
+                } 
+                if (e.button === 1 || (e.button === 0 && editor.shiftPressed)) {
                     var duplicate = duplicateObject(hovered);
                     grabObject(duplicate);
                 }
