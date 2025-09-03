@@ -990,7 +990,7 @@ window.addEventListener("load", () => {
 
     document.addEventListener("keydown", e => {
         editor.shiftPressed = e.key === "Shift";
-        if (e.code === "KeyF") {
+        if (e.target.tagName !== "INPUT" && e.code === "KeyF") {
             document.body.classList.toggle("fullscreen");
             game.windowresize();
         }
