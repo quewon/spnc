@@ -599,13 +599,11 @@ function updateSounds() {
     while (_soundslist.lastElementChild)
         _soundslist.lastElementChild.remove();
     for (let sound in game.sounds) {
-        var li = document.createElement("li");
-        li.appendChild(createSoundElement(sound, () => {
+        _soundslist.appendChild(createSoundElement(sound, () => {
             game.stopSound(sound);
             delete game.sounds[sound];
             updateSounds();
         }));
-        _soundslist.appendChild(li);
     }
     updateDialogueTypes();
 }
@@ -614,14 +612,51 @@ function createSoundElement(sound, onremove) {
     var flex = document.createElement("div");
     flex.classList.add("flex");
 
+    var input = document.createElement("input");
+    input.classList.add("expand");
+    input.type = "text";
+    input.value = sound;
+    input.title = game.sounds[sound].src;
+    setLabel(input);
+    input.addEventListener("change", () => {
+        if (game.sounds[sound].playing)
+            game.stopSound(sound);
+        if (input.value.trim() === "") {
+            alert("this sound needs a name.");
+            return;
+        }
+        var newSound = input.value.trim();
+        if (game.sounds[newSound] && newSound !== sound) {
+            alert(`a sound called "${newSound}" already exists.`);
+            input.value = sound;
+            return;
+        }
+        input.value = newSound;
+        game.sounds[newSound] = game.sounds[sound];
+        delete game.sounds[sound];
+        flex.replaceWith(createSoundElement(newSound, onremove));
+        updateDialogueTypes();
+    })
+    flex.appendChild(input);
+
     var button = document.createElement("button");
     button.type = "button";
-    button.textContent = sound;
-    button.title = game.sounds[sound].src;
+    button.textContent = "▶";
+    button.title = "preview sound";
     setLabel(button);
-    button.onclick = () => {
-        game.playSound(sound);
+    const playSound = () => {
+        button.textContent = "⏹";
+        button.onclick = stopSound;
+        button.focus();
+        game.playSound(sound, stopSound);
     }
+    const stopSound = () => {
+        button.textContent = "▶";
+        button.onclick = playSound;
+        button.blur();
+        game.stopSound(sound);
+    }
+    button.onclick = playSound;
     flex.appendChild(button);
 
     var removebutton = document.createElement("button");

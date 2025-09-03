@@ -153,10 +153,12 @@
         #_objectmenu {
             width: 100%;
         }
+        textarea, input {
+            padding: 5px;
+        }
         textarea {
             width: 100%;
             box-sizing: border-box;
-            padding: 5px;
             resize: none;
         }
         img {
@@ -277,11 +279,13 @@
         <br><br>
         <div>
             <h1>SFX</h1>
-            <ul id="_soundslist"></ul>
-            <div class="flex">
-                <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
-                <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="">file (mp3, wav, ogg)</div>
-                <button type="button" onclick="addSound()" title="create sound">+</button>
+            <div class="flex" style="flex-direction: column;">
+                <div class="flex" style="flex-direction: column;" id="_soundslist"></div>
+                <div class="flex">
+                    <input id="_sfxname" type="text" placeholder="id" class="expand" title="new sound name" onkeydown="if(event.key==='Enter')this.nextElementSibling.nextElementSibling.click()">
+                    <div id="_sfxdropzone" class="dropzone" onmouseup="selectSound()" title="">file (mp3, wav, ogg)</div>
+                    <button type="button" onclick="addSound()" title="create sound">+</button>
+                </div>
             </div>
         </div>
         <br><br>

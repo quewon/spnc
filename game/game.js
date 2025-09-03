@@ -307,11 +307,11 @@ return {
         requestAnimationFrame(this.update.bind(this));
     }
     
-    playSound(sound) {
+    playSound(sound, onend) {
         if (!this.sounds[sound])
             return;
         if (this.sounds[sound])
-            this.sounds[sound].play();
+            this.sounds[sound].play(onend);
     }
 
     stopSound(sound) {

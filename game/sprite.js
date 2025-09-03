@@ -106,6 +106,7 @@ class AudioSprite {
     src;
     url;
     buffer;
+    playing = false;
 
     constructor(o) {
         this.src = o.src;
@@ -150,7 +151,7 @@ class AudioSprite {
         return newBuffer;
     }
 
-    play() {
+    play(onend) {
         if (!this.loaded)
             return;
         if (outputAudio.dataset.started !== "true") {
@@ -162,6 +163,12 @@ class AudioSprite {
         this.source.buffer = this.buffer;
         this.source.connect(audioDestination);
         this.source.start();
+        this.playing = true;
+        this.source.onended = () => {
+            if (onend) onend();
+            this.source.onended = null;
+            this.playing = false;
+        }
     }
 
     stop() {
@@ -170,6 +177,7 @@ class AudioSprite {
         if (this.silence)
             this.silence.stop();
         this.playSilence();
+        this.playing = false;
     }
 
     playSilence() {
