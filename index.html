@@ -237,7 +237,7 @@
         </div>
         <button id="_folderpickerbutton" type="button" onclick="this.nextElementSibling.click()">(re)load an asset folder</button>
             <input id="_folderpicker" type="file" webkitdirectory multiple onchange="loadAssetFolder(this.files)" class="hidden">
-        <ul id="_filesystem"></ul>
+        <ul id="_filesystem" style="overflow-x: auto"></ul>
     </aside>
     <main>
         <header>
