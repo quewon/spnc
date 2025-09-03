@@ -399,7 +399,9 @@ function grabObject(object) {
 }
 
 function duplicateObject(object) {
-    return new GameObject(object);
+    var duplicate = new GameObject(object);
+    duplicate.sprite = new Sprite(object.sprite);
+    return duplicate;
 }
 
 function selectObject(object) {

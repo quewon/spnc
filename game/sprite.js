@@ -33,6 +33,7 @@ class Sprite {
                 o.onload();
             this.loaded = true;
         }
+        this.objectURL = o.objectURL;
     }
 
     createOutlineImage(image, color, offset) {
