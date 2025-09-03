@@ -1012,6 +1012,9 @@ window.addEventListener("load", () => {
                 }
             }
         }
+        if (e.target !== game.canvas && e.target !== _objectmenu && !containsElement(_objectmenu, e.target)) {
+            deselectObject();
+        }
     })
 
     document.addEventListener("mouseup", async (e) => {
@@ -1033,9 +1036,6 @@ window.addEventListener("load", () => {
                     object.scene.removeObject(object);
                 }
             }
-        }
-        if (e.target !== game.canvas && e.target !== _objectmenu && !containsElement(_objectmenu, e.target)) {
-            deselectObject();
         }
     })
 })
