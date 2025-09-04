@@ -466,6 +466,18 @@ function setSceneBackground() {
         game.scenes[game.currentScene].background = new Sprite({ src: object.sprite.src, objectURL: object.sprite.image.src });
         _scenebg.style.backgroundImage = `url(${object.sprite.image.src})`;
         _scenebg.title = object.sprite.src;
+        _deletebackground.disabled = false;
+    }
+}
+
+async function deleteSceneBackground() {
+    if (game.scenes[game.currentScene].background) {
+        if (await confirm("delete current scene background?")) {
+            _scenebg.title = "drop background image here";
+            _scenebg.style.backgroundImage = `none`;
+            game.scenes[game.currentScene].background = null;
+            _deletebackground.disabled = true;
+        }
     }
 }
 

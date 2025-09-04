@@ -101,15 +101,16 @@
             border-color: greenyellow;
             font-style: normal;
         }
-        button:disabled {
-            background: transparent;
-            color: gray;
-            font-style: italic;
-            cursor: default;
-        }
         button.delete {
             color: red;
             border-color: red;
+        }
+        button:disabled {
+            background: transparent;
+            color: gray;
+            border-color: gray;
+            font-style: italic;
+            cursor: default;
         }
         aside > ul {
             padding: 0;
@@ -308,7 +309,10 @@
                 <button type="button" onclick="duplicateScene()">duplicate</button>
                 <button type="button" class="delete" onclick="deleteScene()">delete</button>
             </div>
-            <div style="margin: 5px 0" class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
+            <div class="flex" style="margin: 5px 0;">
+                <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
+                <button id="_deletebackground" type="button" class="delete" onclick="deleteSceneBackground()" disabled>delete</button>
+            </div>
             <textarea id="_enterscript" placeholder="// enter script" title="scene enter script"></textarea>
             <textarea id="_exitscript" placeholder="// exit script" title="scene exit script"></textarea>
         </details>
