@@ -131,7 +131,7 @@ return {
         this.mouseclickEventListener = this.mouseclick.bind(this);
         this.resizeEventListener = this.windowresize.bind(this);
 
-        this.canvas.addEventListener("mousedown", this.mousedownEventListener);
+        document.addEventListener("mousedown", this.mousedownEventListener);
         document.addEventListener("mouseup", this.mouseupEventListener);
         window.addEventListener("blur", this.mouseupEventListener);
         document.addEventListener("mousemove", this.mousemoveEventListener);
@@ -149,7 +149,7 @@ return {
     destroy() {
         this.destroyed = true;
         this.stopSounds();
-        this.canvas.removeEventListener("mousedown", this.mousedownEventListener);
+        document.removeEventListener("mousedown", this.mousedownEventListener);
         document.removeEventListener("mouseup", this.mouseupEventListener);
         window.removeEventListener("blur", this.mouseupEventListener);
         document.removeEventListener("mousemove", this.mousemoveEventListener);
@@ -159,7 +159,11 @@ return {
 
     mousedown(e) {
         if (e.button === 0) {
-            this.mouse.down = true;
+            if (
+                this.mouse.position[0] >= 0 && this.mouse.position[0] <= this.canvas.width &&
+                this.mouse.position[1] >= 0 && this.mouse.position[1] <= this.canvas.height
+            )
+                this.mouse.down = true;
             this.mouse.clickStartPosition = [
                 this.mouse.position[0],
                 this.mouse.position[1]

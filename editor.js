@@ -105,20 +105,20 @@ function getFolderStructure(files) {
 }
 
 function createFolderElement(parentElement, directoryName, parent) {
-    const el = document.createElement("li");
-    el.className = "folder";
-    parentElement.appendChild(el);
-
-    const details = document.createElement("details");
-    const summary = document.createElement("summary");
-    summary.textContent = directoryName;
-    summary.title = "folder";
-    setLabel(summary);
-    details.appendChild(summary);
-    el.appendChild(details);
-
-    const list = document.createElement("ul");
-    details.appendChild(list);
+    const details = createElement({
+        tagName: "details",
+        children: [
+            createElement({
+                tagName: "summary",
+                textContent: directoryName,
+                title: "folder"
+            }),
+        ]
+    })
+    const list = createElement({
+        tagName: "ul",
+        parent: details
+    })
     for (const name in parent[directoryName].children) {
         if (parent[directoryName].children[name].kind !== "directory")
             continue;
@@ -134,15 +134,52 @@ function createFolderElement(parentElement, directoryName, parent) {
                 break;
         }
     }
-    return el;
+    return createElement({
+        tagName: "li",
+        className: "folder",
+        parent: parentElement,
+        children: [details]
+    })
 }
 
 function createAudioFileElement(parentElement, filename, parent) {
-    const el = document.createElement("li");
-    el.className = "file";
-    el.textContent = filename;
-    parentElement.appendChild(el);
-
+    const el = createElement({
+        tagName: "li",
+        className: "file",
+        parent: parentElement,
+        title: "audio file",
+        onmousedown: function() {
+            if (this.classList.contains("loaded")) {
+                document.body.classList.add("dragging");
+                let scene = game.scenes[game.currentScene];
+                let object = new GameObject({
+                    scene,
+                    sprite: { src: "_preset/music.png", buffer: sprite.buffer },
+                    script: `// SFX OBJECT -- drag me into the sfx file box!
+//SRC:${filepath}
+//URL:${url}`,
+                    position: [
+                        game.mouse.position[0] - sprite.width/2,
+                        game.mouse.position[1] - sprite.height/2
+                    ]
+                });
+                scene.addObject(object);
+                grabObject(object);
+            }
+        },
+        children: [
+            createElement({
+                tagName: "div",
+                className: "icon",
+                style: `background-image: src(_preset/music.png)`
+            }),
+            createElement({
+                tagName: "span",
+                textContent: filename
+            })
+        ]
+    });
+    
     const filepath = parent[filename].path;
     const file = parent[filename].file;
     const url = URL.createObjectURL(file);
@@ -150,27 +187,6 @@ function createAudioFileElement(parentElement, filename, parent) {
         src: "_preset/music.png",
         onload: function() { this.classList.add("loaded") }.bind(el)
     });
-    el.addEventListener("mousedown", () => {
-        if (el.classList.contains("loaded")) {
-            document.body.classList.add("dragging");
-            let scene = game.scenes[game.currentScene];
-            let object = new GameObject({
-                scene,
-                sprite: { src: "_preset/music.png", buffer: sprite.buffer },
-                script: `// SFX OBJECT -- drag me into the sfx file box!
-//SRC:${filepath}
-//URL:${url}`,
-                position: [
-                    game.mouse.position[0] - sprite.width/2,
-                    game.mouse.position[1] - sprite.height/2
-                ]
-            });
-            scene.addObject(object);
-            grabObject(object);
-        }
-    })
-    el.title = "audio file";
-    setLabel(el);
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
@@ -182,41 +198,41 @@ function createAudioFileElement(parentElement, filename, parent) {
 }
 
 function createImageFileElement(parentElement, filename, parent) {
-    const el = document.createElement("li");
-    el.className = "file";
-    el.textContent = filename;
-    parentElement.appendChild(el);
+    const el = createElement({
+        tagName: "li",
+        className: "file",
+        textContent: filename,
+        parent: parentElement,
+        title: "image file",
+        onmousedown: function() {
+            if (this.classList.contains("loaded")) {
+                document.body.classList.add("dragging");
+                let scene = game.scenes[game.currentScene];
+                let object = new GameObject({
+                    scene,
+                    sprite: {
+                        src: filepath,
+                        objectURL: url
+                    },
+                    position: [
+                        game.mouse.position[0] - sprite.width/2,
+                        game.mouse.position[1] - sprite.height/2
+                    ]
+                });
+                scene.addObject(object);
+                grabObject(object);
+            }
+        }
+    });
 
     const filepath = parent[filename].path;
     const file = parent[filename].file;
     const url = URL.createObjectURL(file);
-
     const sprite = new Sprite({
         src: filepath,
         objectURL: url,
         onload: function() { this.classList.add("loaded") }.bind(el)
     });
-    el.addEventListener("mousedown", () => {
-        if (el.classList.contains("loaded")) {
-            document.body.classList.add("dragging");
-            let scene = game.scenes[game.currentScene];
-            let object = new GameObject({
-                scene,
-                sprite: {
-                    src: filepath,
-                    objectURL: url
-                },
-                position: [
-                    game.mouse.position[0] - sprite.width/2,
-                    game.mouse.position[1] - sprite.height/2
-                ]
-            });
-            scene.addObject(object);
-            grabObject(object);
-        }
-    })
-    el.title = "image file";
-    setLabel(el);
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
@@ -236,10 +252,12 @@ async function exportGame() {
     while (_exportscenes.lastElementChild)
         _exportscenes.lastElementChild.remove();
     for (let scene in game.scenes) {
-        let option = document.createElement("option");
-        option.textContent = scene;
-        option.value = scene;
-        _exportscenes.appendChild(option);
+        createElement({
+            tagName: "option",
+            textContent: scene,
+            value: scene,
+            parent: _exportscenes
+        })
     }
     _exportcanceled.checked = true;
     _exporttitle.value = "";
@@ -365,10 +383,12 @@ async function saveGame() {
     game.name = filename;
     document.title = game.name;
     const file = new Blob([JSON.stringify(game.generateData())], { type: "text/plain" });
-    const a = document.createElement("a");
     const url = URL.createObjectURL(file);
-    a.href = url;
-    a.download = filename + ".spnc";
+    const a = createElement({
+        tagName: "a",
+        href: url,
+        download: filename + ".spnc",
+    })
     a.click();
     window.URL.revokeObjectURL(url);
 }
@@ -607,10 +627,12 @@ function updateScenes() {
     while (_sceneselect.lastElementChild)
         _sceneselect.lastElementChild.remove();
     for (let scene in game.scenes) {
-        let option = document.createElement("option");
-        option.value = scene;
-        option.textContent = scene;
-        _sceneselect.appendChild(option);
+        createElement({
+            tagName: "option",
+            value: scene,
+            textContent: scene,
+            parent: _sceneselect
+        })
     }
     _sceneselect.value = game.currentScene;
 }
@@ -629,78 +651,74 @@ function updateSounds() {
 }
 
 function createSoundElement(sound, onremove) {
-    var flex = document.createElement("div");
-    flex.classList.add("flex");
-
-    var input = document.createElement("input");
-    input.classList.add("expand");
-    input.type = "text";
-    input.value = sound;
-    input.title = game.sounds[sound].src;
-    setLabel(input);
-    input.addEventListener("change", () => {
-        if (game.sounds[sound].playing)
-            game.stopSound(sound);
-        if (input.value.trim() === "") {
-            alert("this sound needs a name.");
-            return;
-        }
-        var newSound = input.value.trim();
-        if (game.sounds[newSound] && newSound !== sound) {
-            alert(`a sound called "${newSound}" already exists.`);
-            input.value = sound;
-            return;
-        }
-        input.value = newSound;
-        game.sounds[newSound] = game.sounds[sound];
-        delete game.sounds[sound];
-        flex.replaceWith(createSoundElement(newSound, onremove));
-        updateDialogueTypes();
+    return createElement({
+        tagName: "div",
+        className: "flex",
+        children: [
+            createElement({
+                tagName: "input",
+                className: "expand",
+                type: "text",
+                value: sound,
+                title: game.sounds[sound].src,
+                onchange: function() {
+                    if (game.sounds[sound].playing)
+                        game.stopSound(sound);
+                    if (this.value.trim() === "") {
+                        alert("this sound needs a name.");
+                        return;
+                    }
+                    var newSound = this.value.trim();
+                    if (game.sounds[newSound] && newSound !== sound) {
+                        alert(`a sound called "${newSound}" already exists.`);
+                        this.value = sound;
+                        return;
+                    }
+                    this.value = newSound;
+                    game.sounds[newSound] = game.sounds[sound];
+                    delete game.sounds[sound];
+                    this.parentElement.replaceWith(createSoundElement(newSound, onremove));
+                    updateDialogueTypes();
+                }
+            }),
+            createElement({
+                tagName: "button",
+                type: "button",
+                textContent: "⟳",
+                title: "loop sound toggle",
+                onclick: function() {
+                    game.sounds[sound].setLoop(!game.sounds[sound].loop);
+                    if (game.sounds[sound].loop) {
+                        this.classList.add("toggled");
+                    } else {
+                        this.classList.remove("toggled");
+                    }
+                },
+                className: game.sounds[sound].loop ? "toggled" : ""
+            }),
+            createElement({
+                tagName: "button",
+                type: "button",
+                textContent: "▶",
+                dataset: { sound },
+                onclick: () => {
+                    if (!game.sounds[sound].playing) {
+                        game.playSound(sound);
+                    } else {
+                        game.stopSound(sound);
+                    }
+                }
+            }),
+            createElement({
+                tagName: "button",
+                type: "button",
+                className: "delete",
+                textContent: "delete",
+                title: "remove sound",
+                onclick: onremove
+            })
+        ]
     })
-    flex.appendChild(input);
-
-    var loopButton = document.createElement("button");
-    loopButton.type = "button";
-    loopButton.textContent = "⟳";
-    loopButton.title = "loop sound toggle";
-    setLabel(loopButton);
-    loopButton.onclick = () => {
-        game.sounds[sound].setLoop(!game.sounds[sound].loop);
-        if (game.sounds[sound].loop) {
-            loopButton.classList.add("toggled");
-        } else {
-            loopButton.classList.remove("toggled");
-        }
-    };
-    if (game.sounds[sound].loop)
-        loopButton.classList.add("toggled");
-    flex.appendChild(loopButton);
-
-    var button = document.createElement("button");
-    button.type = "button";
-    button.textContent = "▶";
-    button.title = "preview sound";
-    button.dataset.sound = sound;
-    setLabel(button);
-    button.onclick = () => {
-        if (!game.sounds[sound].playing) {
-            game.playSound(sound);
-        } else {
-            game.stopSound(sound);
-        }
-    };
-    flex.appendChild(button);
-
-    var removebutton = document.createElement("button");
-    removebutton.classList.add("delete");
-    removebutton.type = "button";
-    removebutton.textContent = "delete";
-    removebutton.title = "remove sound";
-    setLabel(removebutton, removebutton.title);
-    removebutton.onclick = onremove;
-    flex.appendChild(removebutton);
-
-    return flex;
 }
 
 function updateDialogueTypes() {
@@ -712,84 +730,88 @@ function updateDialogueTypes() {
         _dialoguetypes.lastElementChild.remove();
     }
     for (let id in game.dialogueTypes) {
-        var typeElement = document.createElement("details");
-        _dialoguetypes.appendChild(typeElement);
-        var typeLabel = document.createElement("summary");
-        typeLabel.textContent = id;
-        typeElement.appendChild(typeLabel);
+        var propertyList = [];
 
-        if (openTypes.includes(id))
-            typeElement.open = true;
-
-        var propertyList = document.createElement("ul");
-        typeElement.appendChild(propertyList);
         for (let property of Object.keys(game.dialogueTypes.default)) {
-            var propertyElement = document.createElement("li");
-            propertyElement.textContent = property;
-            var flex = document.createElement("div");
-            flex.className = "flex";
-            propertyElement.appendChild(flex);
-
             var input;
             var originalType = typeof game.dialogueTypes.default[property];
             if (property === "sound") {
-                input = document.createElement("select");
-                let nulloption = document.createElement("option");
-                nulloption.value = "(none)";
-                nulloption.textContent = "(none)";
-                input.appendChild(nulloption);
-                for (let sound in game.sounds) {
-                    let option = document.createElement("option");
-                    option.textContent = sound;
-                    option.value = sound;
-                    input.appendChild(option);
-                }
                 const value = game.dialogueTypes[id][property] || game.dialogueTypes.default[property];
-                if (value !== "(none)" && !game.sounds[value]) {
-                    let option = document.createElement("option");
-                    option.textContent = value;
-                    option.value = value;
-                    option.disabled = true;
-                    input.appendChild(option);
+                var soundOptions = [];
+                for (let sound in game.sounds) {
+                    soundOptions.push(createElement({
+                        tagName: "option",
+                        textContent: sound,
+                        value: sound
+                    }))
                 }
-                input.value = value;
+                if (value !== "(none)" && !game.sounds[value]) {
+                    soundOptions.push(createElement({
+                        tagName: "option",
+                        textContent: value,
+                        value: value,
+                        disabled: true
+                    }))
+                }
+                input = createElement({
+                    tagName: "select",
+                    value: value,
+                    children: [
+                        createElement({
+                            tagName: "option",
+                            value: "(none)",
+                            textContent: "(none)"
+                        }),
+                        ...soundOptions
+                    ]
+                })
             } else {
                 if (originalType === "string") {
-                    input = document.createElement("textarea");
-                    input.addEventListener("focus", resizeTextarea);
-                    input.addEventListener("input", resizeTextarea);
+                    input = createElement({
+                        tagName: "textarea",
+                        onfocus: resizeTextarea,
+                        oninput: resizeTextarea
+                    })
                 } else if (originalType === "number") {
-                    input = document.createElement("input");
-                    input.type = "number";
+                    input = createElement({
+                        tagName: "input",
+                        type: "number"
+                    })
                 }
             }
-            flex.appendChild(input);
+
+            var flex = createElement({
+                tagName: "div",
+                className: "flex",
+                children: [input]
+            })
 
             if (game.dialogueTypes[id][property])
                 input.value = game.dialogueTypes[id][property];
             if (id !== "default") {
                 input.placeholder = game.dialogueTypes.default[property];
-                let defaultbutton = document.createElement("button");
-                defaultbutton.textContent = "↻";
-                defaultbutton.title = "reset and bind to default";
-                setLabel(defaultbutton);
-                defaultbutton.onclick = function() {
-                    delete game.dialogueTypes[this.dataset.id][this.dataset.property];
-                    if (this.dataset.property === "sound") {
-                        this.value = game.dialogueTypes.default.sound;
-                        if (!game.sounds[this.value])
-                            updateDialogueTypes();
-                    } else {
-                        this.value = null;
-                    }
-                    this.classList.add("default");
-                    this.nextElementSibling.disabled = true;
-                }.bind(input);
+                createElement({
+                    type: "button",
+                    textContent: "↻",
+                    title: "reset and bind to default",
+                    parent: flex,
+                    disabled: !game.dialogueTypes[id][property],
+                    onclick: function() {
+                        delete game.dialogueTypes[this.dataset.id][this.dataset.property];
+                        if (this.dataset.property === "sound") {
+                            this.value = game.dialogueTypes.default.sound;
+                            if (!game.sounds[this.value])
+                                updateDialogueTypes();
+                        } else {
+                            this.value = null;
+                        }
+                        this.classList.add("default");
+                        this.nextElementSibling.disabled = true;
+                    }.bind(input)
+                })
                 if (!game.dialogueTypes[id][property]) {
                     input.classList.add("default");
-                    defaultbutton.disabled = true;
                 }
-                flex.appendChild(defaultbutton);
             }
             input.dataset.id = id;
             input.dataset.property = property;
@@ -833,27 +855,51 @@ function updateDialogueTypes() {
                     }
                 }
             })
-            propertyList.appendChild(propertyElement);
+
+            propertyList.push(createElement({
+                tagName: "li",
+                textContent: property,
+                children: [flex]
+            }));
         }
 
         if (id !== "default") {
-            var removeElement = document.createElement("li");
-            removeElement.style.marginTop = "10px";
-            var removeButton = document.createElement("button");
-            removeButton.classList.add("delete");
-            removeButton.type = "button";
-            removeButton.textContent = "delete";
-            removeButton.title = "remove dialogue type";
-            setLabel(removeButton);
-            removeButton.onclick = async () => {
-                if (await confirm(`delete dialogue type "${id}"?`)) {
-                    delete game.dialogueTypes[id];
-                    updateDialogueTypes();
-                }
-            }
-            removeElement.appendChild(removeButton);
-            propertyList.appendChild(removeElement);
+            propertyList.push(createElement({
+                tagName: "li",
+                style: "margin-top: 10px",
+                children: [
+                    createElement({
+                        tagName: "button",
+                        type: "button",
+                        className: "delete",
+                        textContent: "delete",
+                        title: "remove dialogue type",
+                        onclick: async () => {
+                            if (await confirm(`delete dialogue type "${id}"?`)) {
+                                delete game.dialogueTypes[id];
+                                updateDialogueTypes();
+                            }
+                        }
+                    })
+                ]
+            }));
         }
+
+        createElement({
+            tagName: "details",
+            parent: _dialoguetypes,
+            open: openTypes.includes(id),
+            children: [
+                createElement({
+                    tagName: "summary",
+                    textContent: id,
+                }),
+                createElement({
+                    tagName: "ul",
+                    children: propertyList
+                })
+            ]
+        })
     }
     _gamemenu.scrollTop = scrollTop;
 }
@@ -1000,9 +1046,16 @@ window.addEventListener("load", () => {
 
     document.addEventListener("keydown", e => {
         editor.shiftPressed = e.key === "Shift";
-        if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA" && e.code === "KeyF") {
-            document.body.classList.toggle("fullscreen");
-            game.windowresize();
+        if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+            if (e.code === "KeyF") {
+                document.body.classList.toggle("fullscreen");
+                game.windowresize();
+            }
+            if (e.key === "Tab") {
+                switchMode();
+                _modebutton.focus();
+                e.preventDefault();
+            }
         }
     })
 
@@ -1049,7 +1102,34 @@ window.addEventListener("load", () => {
                 } else {
                     object.scene.removeObject(object);
                 }
+                if (editor.selectedObject === object)
+                    deselectObject();
             }
         }
     })
 })
+
+function createElement(o) {
+    var element = document.createElement(o.tagName);
+    delete o.tagName;
+    for (let property in o) {
+        if (["parent", "children", "dataset"].includes(property))
+            continue;
+        element[property] = o[property];
+    }
+    if (o.dataset) {
+        for (let data in o.dataset) {
+            element.dataset[data] = o.dataset[data];
+        }
+    }
+    if (o.title)
+        setLabel(element);
+    if (o.parent)
+        o.parent.appendChild(element);
+    if (o.children) {
+        for (let child of o.children) {
+            element.appendChild(child);
+        }
+    }
+    return element;
+}

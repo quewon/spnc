@@ -178,6 +178,10 @@
         #_dialoguetypes {
             padding: 0;
         }
+        .spacer {
+            flex-shrink: 0;
+            height: 2em;
+        }
 
         .expand {
             flex-grow: 1;
@@ -278,7 +282,7 @@
     <aside id="_objectmenu" class="hidden">
         <h1>SCRIPT</h1>
         <textarea id="_objectscript" title="object script"></textarea>
-        <br><br>
+        <div class="spacer"></div>
         <h1>IMAGE</h1>
         <img id="_objectpreview" src="" title="" alt="selected object">
     </aside>
@@ -298,7 +302,7 @@
             <input id="_newscenename" type="text" title="new scene name" class="expand" placeholder="id" onkeydown="if(event.key==='Enter')this.nextElementSibling.click()">
             <button type="button" onclick="addScene()" title="create scene">+</button>
         </div>
-        <br><br>
+        <div class="spacer"></div>
         <details open>
             <summary><h1>CURSOR</h1></summary>
             <div class="flex" style="margin-top: 5px">
@@ -306,7 +310,7 @@
                 <div class="dropzone" id="_cursordown" onmouseup="setCursorDown()" title="">cursor (down)</div>
             </div>
         </details>
-        <br><br>
+        <div class="spacer"></div>
         <div>
             <div class="flex" style="flex-direction: column;">
                 <details open>
@@ -320,7 +324,7 @@
                 </div>
             </div>
         </div>
-        <br><br>
+        <div class="spacer"></div>
         <div>
             <details open>
                 <summary>
@@ -436,15 +440,7 @@
                 this.classList.remove("active");
             })
         }
-
-        document.addEventListener("keydown", e => {
-            if (e.key === "Tab" && e.target.tagName !== "INPUT") {
-                switchMode();
-                _modebutton.focus();
-                e.preventDefault();
-            }
-        })
-
+        
         for (let textarea of document.querySelectorAll("textarea")) {
             textarea.addEventListener("focus", resizeTextarea);
             textarea.addEventListener("input", resizeTextarea);
