@@ -602,11 +602,17 @@ async function deleteScene() {
 }
 
 function duplicateScene() {
-    var scenedata = game.scenes[game.currentScene].generateData();
-    scenedata.background = new Sprite(game.scenes[game.currentScene].background);
-    scenedata.game = game;
+    const currentScene = game.scenes[game.currentScene];
+    const data = currentScene.generateData();
+    data.game = game;
+    var scene = new Scene(data);
+    if (scene.background)
+        scene.background = new Sprite(currentScene.background);
+    for (let i=0; i<currentScene.objects.length; i++) {
+        scene.objects[i].sprite = new Sprite(currentScene.objects[i].sprite);
+    }
     var name = game.currentScene + " copy";
-    game.scenes[name] = new Scene(scenedata);
+    game.scenes[name] = scene;
     game.setScene(name);
     updateScenes();
 }
