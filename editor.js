@@ -143,9 +143,12 @@ function createFolderElement(parentElement, directoryName, parent) {
 }
 
 function createAudioFileElement(parentElement, filename, parent) {
+    const filepath = parent[filename].path;
+    const file = parent[filename].file;
+    const url = URL.createObjectURL(file);
     const el = createElement({
         tagName: "li",
-        className: "file",
+        className: "file flex",
         parent: parentElement,
         title: "audio file",
         onmousedown: function() {
@@ -169,9 +172,9 @@ function createAudioFileElement(parentElement, filename, parent) {
         },
         children: [
             createElement({
-                tagName: "div",
+                tagName: "span",
                 className: "icon",
-                style: `background-image: src(_preset/music.png)`
+                style: `background-image: url(_preset/music.png)`
             }),
             createElement({
                 tagName: "span",
@@ -179,10 +182,7 @@ function createAudioFileElement(parentElement, filename, parent) {
             })
         ]
     });
-    
-    const filepath = parent[filename].path;
-    const file = parent[filename].file;
-    const url = URL.createObjectURL(file);
+
     const sprite = new Sprite({
         src: "_preset/music.png",
         onload: function() { this.classList.add("loaded") }.bind(el)
@@ -198,10 +198,12 @@ function createAudioFileElement(parentElement, filename, parent) {
 }
 
 function createImageFileElement(parentElement, filename, parent) {
+    const filepath = parent[filename].path;
+    const file = parent[filename].file;
+    const url = URL.createObjectURL(file);
     const el = createElement({
         tagName: "li",
-        className: "file",
-        textContent: filename,
+        className: "file flex",
         parent: parentElement,
         title: "image file",
         onmousedown: function() {
@@ -222,12 +224,20 @@ function createImageFileElement(parentElement, filename, parent) {
                 scene.addObject(object);
                 grabObject(object);
             }
-        }
+        },
+        children: [
+            createElement({
+                tagName: "span",
+                className: "icon",
+                style: `background-image: url(${url})`
+            }),
+            createElement({
+                tagName: "span",
+                textContent: filename
+            })
+        ]
     });
 
-    const filepath = parent[filename].path;
-    const file = parent[filename].file;
-    const url = URL.createObjectURL(file);
     const sprite = new Sprite({
         src: filepath,
         objectURL: url,
