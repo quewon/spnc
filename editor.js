@@ -326,7 +326,7 @@ async function exportGame() {
         for (let sprite of objecturl) {
             zip.file(
                 sprite.src, 
-                await fetch(sprite.buffer ? sprite.url : sprite.image.src, {cache: "force-cache"})
+                await fetch(sprite.objectURL, {cache: "force-cache"})
                     .then(res => res.blob())
                     .catch(() => {
                         error = 1;
