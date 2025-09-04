@@ -111,20 +111,7 @@ function getFolderStructure(files) {
 }
 
 function createFolderElement(parentElement, directoryName, parent) {
-    const details = createElement({
-        tagName: "details",
-        children: [
-            createElement({
-                tagName: "summary",
-                textContent: directoryName,
-                title: "folder"
-            }),
-        ]
-    })
-    const list = createElement({
-        tagName: "ul",
-        parent: details
-    })
+    const list = createElement({ tagName: "ul" });
     for (const name in parent[directoryName].children) {
         if (parent[directoryName].children[name].kind !== "directory")
             continue;
@@ -144,7 +131,19 @@ function createFolderElement(parentElement, directoryName, parent) {
         tagName: "li",
         className: "folder",
         parent: parentElement,
-        children: [details]
+        children: [
+            createElement({
+                tagName: "details",
+                children: [
+                    createElement({
+                        tagName: "summary",
+                        textContent: directoryName,
+                        title: "folder"
+                    }),
+                    list
+                ]
+            })
+        ]
     })
 }
 
@@ -157,8 +156,8 @@ function createAudioFileElement(parentElement, filename, parent) {
         className: "file flex",
         parent: parentElement,
         title: "audio file",
-        onmousedown: function() {
-            if (this.classList.contains("loaded")) {
+        onmousedown: function(e) {
+            if (e.button === 0 && this.classList.contains("loaded")) {
                 document.body.classList.add("dragging");
                 let scene = game.scenes[game.currentScene];
                 let object = new GameObject({
@@ -212,8 +211,8 @@ function createImageFileElement(parentElement, filename, parent) {
         className: "file flex",
         parent: parentElement,
         title: "image file",
-        onmousedown: function() {
-            if (this.classList.contains("loaded")) {
+        onmousedown: function(e) {
+            if (e.button === 0 && this.classList.contains("loaded")) {
                 document.body.classList.add("dragging");
                 let scene = game.scenes[game.currentScene];
                 let object = new GameObject({
