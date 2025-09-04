@@ -603,6 +603,7 @@ async function deleteScene() {
 
 function duplicateScene() {
     var scenedata = game.scenes[game.currentScene].generateData();
+    scenedata.background = new Sprite(game.scenes[game.currentScene].background);
     scenedata.game = game;
     var name = game.currentScene + " copy";
     game.scenes[name] = new Scene(scenedata);
