@@ -143,6 +143,11 @@
             background-repeat: no-repeat;
             flex-shrink: 0;
         }
+        .file span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .file.loaded {
             color: white;
             cursor: grab;
@@ -263,7 +268,7 @@
         </div>
         <button id="_folderpickerbutton" type="button" onclick="this.nextElementSibling.click()">(re)load an asset folder</button>
             <input id="_folderpicker" type="file" webkitdirectory multiple onchange="loadAssetFolder(this.files)" class="hidden">
-        <ul id="_filesystem" style="overflow-x: auto"></ul>
+        <ul id="_filesystem"></ul>
     </aside>
     <main>
         <header>

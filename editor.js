@@ -86,7 +86,7 @@ function getFolderStructure(files) {
         }
         const filename = pathParts[pathParts.length - 1];
         const filenameParts = filename.split(".");
-        const ext = filenameParts[filenameParts.length - 1];
+        const ext = filenameParts[filenameParts.length - 1].toLowerCase();
         if (editor.supportedImageFormats.includes(ext)) {
             current[filename] = { 
                 kind: "image", 
