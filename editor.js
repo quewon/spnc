@@ -1148,25 +1148,24 @@ window.addEventListener("load", () => {
 
 function createElement(o) {
     var element = document.createElement(o.tagName);
-    delete o.tagName;
-    for (let property in o) {
-        if (["parent", "children", "dataset"].includes(property))
-            continue;
-        element[property] = o[property];
-    }
-    if (o.dataset) {
-        for (let data in o.dataset) {
-            element.dataset[data] = o.dataset[data];
-        }
-    }
-    if (o.title)
-        setLabel(element);
-    if (o.parent)
-        o.parent.appendChild(element);
     if (o.children) {
         for (let child of o.children) {
             element.appendChild(child);
         }
     }
+    if (o.title)
+        setLabel(element);
+    if (o.dataset) {
+        for (let data in o.dataset) {
+            element.dataset[data] = o.dataset[data];
+        }
+    }
+    for (let property in o) {
+        if (["parent", "children", "dataset", "tagName"].includes(property))
+            continue;
+        element[property] = o[property];
+    }
+    if (o.parent)
+        o.parent.appendChild(element);
     return element;
 }
