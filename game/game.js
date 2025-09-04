@@ -230,13 +230,14 @@ return {
         this.cachedCanvasRect = this.canvas.getBoundingClientRect();
     }
 
-    async setScene(sceneName) {
+    async setScene(sceneName, skipDialogue) {
         if (!this.scenes[sceneName]) {
             alert(`the scene "${sceneName}" does not exist.`);
             return;
         }
-        this.dialogue = null;
-        if (ENV !== "editor" && this.currentScene && sceneName !== this.currentScene) {
+        if (skipDialogue) {
+            this.dialogue = null;
+        } else if (ENV !== "editor" && this.currentScene && sceneName !== this.currentScene) {
             var exitDialogue = new Dialogue({
                 game: this, 
                 text: this.scenes[this.currentScene].exitScript
@@ -266,9 +267,9 @@ return {
             _enterscript.value = this.scenes[sceneName].enterScript;
             _exitscript.value = this.scenes[sceneName].exitScript;
             _enterscript.style.height = "";
-            _enterscript.style.height = _enterscript.scrollHeight + 5 + "px";
+            _enterscript.style.height = `max(fit-content, ${_enterscript.scrollHeight + 5}px)`;
             _exitscript.style.height = "";
-            _exitscript.style.height = _exitscript.scrollHeight + 5 + "px";
+            _exitscript.style.height = `max(fit-content, ${_exitscript.scrollHeight + 5}px)`;
         }
         this.currentScene = sceneName;
         if (ENV !== "editor") {

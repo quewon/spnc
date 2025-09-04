@@ -277,7 +277,7 @@
             <div class="flex">
                 <button type="button" id="_modebutton" onclick="switchMode()" title="change mode [tab]">EDITOR MODE</button>
                 <div class="expand"></div>
-                <select id="_sceneselect" value="main" title="current scene / scene select" onchange="game.setScene(this.value)"></select>
+                <select id="_sceneselect" value="main" title="current scene / scene select" onchange="game.setScene(this.value, true)"></select>
                 <button type="button" onclick="_help.showModal()" title="help">?</button>
             </div>
         </header>
