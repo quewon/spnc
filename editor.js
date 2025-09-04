@@ -251,8 +251,7 @@ function createImageFileElement(parentElement, filename, parent) {
 
     for (let sprite of allSprites()) {
         if (sprite.src === filepath) {
-            sprite.loaded = false;
-            sprite.image.src = url;
+            sprite.setSource(url);
         }
     }
 

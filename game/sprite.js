@@ -11,6 +11,7 @@ outputAudio.srcObject = audioDestination.stream;
 class Sprite {
     loaded = false;
     src;
+    objectURL;
     image;
     width = 0;
     height = 0;
@@ -19,7 +20,8 @@ class Sprite {
     constructor(o) {
         this.src = o.src;
         this.image = new Image();
-        this.image.src = o.objectURL || this.src;
+        this.objectURL = o.objectURL || this.src;
+        this.image.src = this.objectURL;
         if (o.width)
             this.width = o.width;
         if (o.height)
@@ -33,7 +35,12 @@ class Sprite {
                 o.onload();
             this.loaded = true;
         }
-        this.objectURL = o.objectURL;
+    }
+
+    setSource(url) {
+        this.loaded = false;
+        this.objectURL = url;
+        this.image.src = url;
     }
 
     createOutlineImage(image, color, offset) {
@@ -105,7 +112,7 @@ class Sprite {
 class AudioSprite {
     loaded = false;
     src;
-    url;
+    objectURL;
     buffer;
     playing = false;
     loop = false;
@@ -113,20 +120,20 @@ class AudioSprite {
     constructor(o) {
         this.src = o.src;
         this.loop = o.loop;
+        this.objectURL = o.objectURL || this.src;
         if (o.buffer) {
             this.buffer = o.buffer;
             this.loaded = true;
-            this.url = o.objectURL || this.src;
             if (o.onload)
                 o.onload();
         } else {
-            this.setSource(o.objectURL || this.src, o.onload);
+            this.setSource(this.objectURL, o.onload);
         }
     }
 
     setSource(src, onload) {
         this.loaded = false;
-        this.url = src;
+        this.objectURL = src;
         fetch(src, {cache: "force-cache"})
         .then(res => res.arrayBuffer())
         .then(buffer => audioContext.decodeAudioData(buffer))
