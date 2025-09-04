@@ -280,6 +280,8 @@ return {
                 this.dialogue.play();
             }
         }
+        this.mouse.cancelClick = null;
+        this.mouse.clickStartPosition = null;
     }
 
     draw() {
@@ -504,6 +506,8 @@ class GameObject {
     }
 
     hovered() {
+        if (this.scene !== this.scene.game.scenes[this.scene.game.currentScene])
+            return false;
         let mouse = this.scene.game.mouse.position;
         if (
             mouse[0] >= this.position[0] && mouse[0] <= this.position[0] + this.sprite.width * this.sprite.scale &&
