@@ -511,6 +511,8 @@ class GameObject {
             return false;
         let mouse = this.scene.game.mouse.position;
         if (
+            mouse[0] >= 0 && mouse[0] <= this.scene.game.canvas.width &&
+            mouse[1] >= 0 && mouse[1] <= this.scene.game.canvas.height &&
             mouse[0] >= this.position[0] && mouse[0] <= this.position[0] + this.sprite.width * this.sprite.scale &&
             mouse[1] >= this.position[1] && mouse[1] <= this.position[1] + this.sprite.height * this.sprite.scale &&
             !this.sprite.isTransparent((mouse[0] - this.position[0]) / this.sprite.scale, (mouse[1] - this.position[1]) / this.sprite.scale)
