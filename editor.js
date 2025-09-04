@@ -585,6 +585,8 @@ async function deleteScene() {
     )
         return;
     delete game.scenes[game.currentScene];
+    _enterscript.value = "";
+    _exitscript.value = "";
     if (Object.keys(game.scenes).length === 0) {
         game.scenes.main = new Scene({ game });
         game.setScene("main");

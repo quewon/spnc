@@ -477,7 +477,7 @@ class Scene {
     }
 
     hasContent() {
-        return this.objects.length > 0 || this.background;
+        return this.enterScript || this.exitScript || this.objects.length > 0 || this.background;
     }
 }
 
