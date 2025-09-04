@@ -73,7 +73,13 @@ function loadAssetFolder(files) {
 }
 
 function getFolderStructure(files) {
+    files = [...files];
     const structure = {};
+    files.sort((a, b) => {
+        const apath = (a.webkitRelativePath || a.path).toLowerCase();
+        const bpath = (b.webkitRelativePath || b.path).toLowerCase();
+        return apath.localeCompare(bpath)
+    });
     for (let file of files) {
         const pathParts = (file.webkitRelativePath || file.path).split('/');
         let current = structure;
