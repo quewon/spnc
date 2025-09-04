@@ -263,7 +263,7 @@ return {
                 _scenebg.title = this.scenes[sceneName].background.src;
                 _scenebg.style.backgroundImage = `url(${this.scenes[sceneName].background?.image.src})`;
             }
-            _deletebackground.disabled = !!this.scenes[sceneName].background;
+            _deletebackground.disabled = !this.scenes[sceneName].background;
             _enterscript.value = this.scenes[sceneName].enterScript;
             _exitscript.value = this.scenes[sceneName].exitScript;
             _enterscript.style.height = "";
