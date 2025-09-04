@@ -827,6 +827,7 @@ function updateDialogueTypes() {
             if (id !== "default") {
                 input.placeholder = game.dialogueTypes.default[property];
                 createElement({
+                    tagName: "button",
                     type: "button",
                     textContent: "↻",
                     title: "reset and bind to default",
