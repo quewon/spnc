@@ -301,8 +301,8 @@ async function exportGame() {
     ];
     var objecturl = [];
     for (let sprite of allSprites()) {
-        if (sprite.src.includes("_preset/"))
-            res.push(sprite.src);
+        if (sprite.objectURL.includes("_preset/"))
+            res.push(sprite.objectURL);
         else
             objecturl.push(sprite);
     }
@@ -326,7 +326,7 @@ async function exportGame() {
         for (let sprite of objecturl) {
             zip.file(
                 sprite.src, 
-                await fetch(sprite.buffer ? sprite.url : sprite.image.src, {cache: "force-cache"})
+                await fetch(sprite.objectURL, {cache: "force-cache"})
                     .then(res => res.blob())
                     .catch(() => {
                         error = 1;
