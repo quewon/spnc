@@ -721,6 +721,7 @@ function createSoundElement(sound, onremove) {
                 tagName: "input",
                 type: "number",
                 min: 0,
+                max: 9,
                 value: game.sounds[sound].volume,
                 step: 0.1,
                 title: "volume",
@@ -761,8 +762,8 @@ function createSoundElement(sound, onremove) {
                 tagName: "button",
                 type: "button",
                 className: "delete",
-                textContent: "delete",
-                title: "remove sound",
+                textContent: "×",
+                title: "delete sound",
                 onclick: onremove
             })
         ]
@@ -921,8 +922,8 @@ function updateDialogueTypes() {
                         tagName: "button",
                         type: "button",
                         className: "delete",
-                        textContent: "delete",
-                        title: "remove dialogue type",
+                        textContent: "×",
+                        title: "delete dialogue type",
                         onclick: async () => {
                             if (await confirm(`delete dialogue type "${id}"?`)) {
                                 delete game.dialogueTypes[id];

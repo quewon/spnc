@@ -307,11 +307,11 @@
             <div class="flex" style="margin-top: 5px;">
                 <input id="_scenename" type="text" title="scene name" onchange="renameScene()" class="expand">
                 <button type="button" onclick="duplicateScene()">duplicate</button>
-                <button type="button" class="delete" onclick="deleteScene()">delete</button>
+                <button type="button" class="delete" onclick="deleteScene()" title="delete scene">×</button>
             </div>
             <div class="flex" style="margin: 5px 0;">
                 <div class="dropzone" id="_scenebg" onmouseup="setSceneBackground()" title="">background image</div>
-                <button id="_deletebackground" type="button" class="delete" onclick="deleteSceneBackground()" disabled>delete</button>
+                <button id="_deletebackground" type="button" class="delete" onclick="deleteSceneBackground()" title="remove background image" disabled>×</button>
             </div>
             <textarea id="_enterscript" placeholder="// enter script" title="scene enter script"></textarea>
             <textarea id="_exitscript" placeholder="// exit script" title="scene exit script"></textarea>
