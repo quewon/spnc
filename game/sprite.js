@@ -116,11 +116,19 @@ class AudioSprite {
     buffer;
     playing = false;
     loop = false;
+    volume = 1;
 
     constructor(o) {
         this.src = o.src;
         this.loop = o.loop;
         this.objectURL = o.objectURL || this.src;
+
+        this.gainNode = audioContext.createGain();
+        if ('volume' in o)
+            this.volume = o.volume;
+        this.gainNode.connect(audioDestination);
+        this.setVolume(this.volume);
+        
         if (o.buffer) {
             this.buffer = o.buffer;
             this.loaded = true;
@@ -129,6 +137,11 @@ class AudioSprite {
         } else {
             this.setSource(this.objectURL, o.onload);
         }
+    }
+
+    setVolume(volume) {
+        this.volume = volume || 0;
+        this.gainNode.gain.value = this.volume;
     }
 
     setSource(src, onload) {
@@ -177,7 +190,7 @@ class AudioSprite {
         this.stop();
         this.source = audioContext.createBufferSource();
         this.source.buffer = this.buffer;
-        this.source.connect(audioDestination);
+        this.source.connect(this.gainNode);
         this.source.start();
         this.playing = true;
         if (this.loop)
@@ -208,7 +221,8 @@ class AudioSprite {
     generateData() {
         return {
             src: this.src,
-            loop: this.loop
+            loop: this.loop,
+            volume: this.volume
         }
     }
 }

@@ -718,10 +718,21 @@ function createSoundElement(sound, onremove) {
                 }
             }),
             createElement({
+                tagName: "input",
+                type: "number",
+                min: 0,
+                value: game.sounds[sound].volume,
+                step: 0.1,
+                title: "volume",
+                onchange: function() {
+                    game.sounds[sound].setVolume(this.value);
+                }
+            }),
+            createElement({
                 tagName: "button",
                 type: "button",
                 textContent: "⟳",
-                title: "loop sound toggle",
+                title: "toggle loop",
                 onclick: function() {
                     game.sounds[sound].setLoop(!game.sounds[sound].loop);
                     if (game.sounds[sound].loop) {
@@ -736,6 +747,7 @@ function createSoundElement(sound, onremove) {
                 tagName: "button",
                 type: "button",
                 textContent: "▶",
+                title: "play/stop",
                 dataset: { sound },
                 onclick: () => {
                     if (!game.sounds[sound].playing) {
@@ -1151,7 +1163,11 @@ function createElement(o) {
     for (let property in o) {
         if (["parent", "children", "dataset", "tagName", "value"].includes(property))
             continue;
-        element[property] = o[property];
+        if (["list"].includes(property)) {
+            element.setAttribute(property, o[property]);
+        } else {
+            element[property] = o[property];
+        }
     }
     if (o.children) {
         for (let child of o.children) {
